@@ -13,6 +13,7 @@ export const catalogItemFixture = (
     title: "Test Product",
     price: 29.99,
     image: "https://example.com/image.jpg",
+    ...overrides,
 })
 
 const singleItemTest: CatalogItem = catalogItemFixture()
