@@ -1,0 +1,54 @@
+services:
+  # Catalog service containers
+  catalog:
+    build: ./services/catalog
+    depends_on:
+      - catalog-mongo
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./services/catalog:/app:cached
+      - catalog_node_modules:/app/node_modules
+    environment:
+      - MONGO_URL=mongodb://catalog-mongo:27017/mydatabase1
+      - CLIENT_URL=http://localhost:8080
+  catalog-mongo:
+    image: mongo:latest
+    ports:
+      - "3001:27017"
+
+  # Inventory service containers
+  inventory:
+    build: ./services/inventory
+    depends_on:
+      - inventory-mongo
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./services/inventory:/services/inventory:cached
+      - inventory_node_modules:/services/inventory/node_modules
+    environment:
+      - MONGO_URL=mongodb://inventory-mongo:27017/mydatabase1
+      - CLIENT_URL=http://localhost:8080
+    command: sh -c "cd /services/inventory && npm run seed && npm run dev"
+  inventory-mongo:
+    image: mongo:latest
+    ports:
+      - "4001:27017"
+
+  # PLP service container
+  product-landing-page:
+    build: ./services/product-landing-page
+    volumes:
+      - ./services/product-landing-page:/html:cached
+      - plp_node_modules:/html/node_modules
+    ports:
+      - "8080:3000"
+    depends_on:
+      - catalog
+      - inventory
+
+volumes:
+    catalog_node_modules:
+    inventory_node_modules:
+    plp_node_modules:
