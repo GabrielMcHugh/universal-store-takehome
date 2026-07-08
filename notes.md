@@ -1,0 +1,1 @@
+-Inventory much more frequent writes
