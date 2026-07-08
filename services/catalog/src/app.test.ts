@@ -16,7 +16,7 @@ export const catalogItemFixture = (
 })
 
 const singleItemTest: CatalogItem = catalogItemFixture()
- 
+
 
 describe("GET /catalog", () => {
     let mongo: MongoMemoryServer;
@@ -36,7 +36,6 @@ describe("GET /catalog", () => {
         await Catalog.deleteMany({})
     })
 
-
     //Happy Path
     it("returns catalog items", async () => {
         await Catalog.create(singleItemTest);
@@ -45,11 +44,8 @@ describe("GET /catalog", () => {
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveLength(1);
+        expect(res.body[0]).toMatchObject(singleItemTest);
     });
-
-
-    //Shape
-    it("returns ")
 
     //Empty Db
     it('returns an empty array when no items exist', async () => {
