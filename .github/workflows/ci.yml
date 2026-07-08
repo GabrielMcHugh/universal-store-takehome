@@ -47,6 +47,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            tests/integration/package-lock.json
+            tests/e2e/package-lock.json
 
       - name: Start docker-compose stack
         run: docker compose up -d --build
