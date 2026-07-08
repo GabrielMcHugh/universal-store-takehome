@@ -1,15 +1,7 @@
-// PLP knows what the API returns — not how catalog defines its Mongoose model
-export interface CatalogItem {
-  sku: string;
-  title: string;
-  price: number;
-  image: string;
-}
+import z from 'zod';
+import { catalogItemSchema } from '../schemas/catalogItemSchema';
+import { inventoryItemSchema } from '../schemas/inventoryItemSchema';
 
-export interface InventoryItem {
-    sku: string;
-    quantity: number;
-}
-
-//combined
-export type InStockProduct = CatalogItem & Pick<InventoryItem, 'quantity'>
+export type CatalogItem = z.infer<typeof catalogItemSchema>;
+export type InventoryItem = z.infer<typeof inventoryItemSchema>;
+export type InStockProduct = CatalogItem & Pick<InventoryItem, 'quantity'>;
