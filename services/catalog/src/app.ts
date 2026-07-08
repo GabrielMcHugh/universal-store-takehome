@@ -18,10 +18,15 @@ export function createApp(config: AppConfig = {}) {
         next();
     });
 
-    app.get("/catalog", async(_: Request, res: Response) => {
+    app.get("/catalog", async (_: Request, res: Response) => {
         res.json(await Catalog.find());
-    })
+    });
+
+    app.get("/catalog/:sku", async (req: Request, res: Response) => {
+        res.json(await Catalog.findOne({ sku: req.params.sku }));
+    });
 
     return app;
 }
+
 
