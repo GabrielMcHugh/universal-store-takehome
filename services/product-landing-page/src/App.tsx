@@ -1,10 +1,7 @@
 import './App.css';
 import { ProductCatalog } from './components/ProductCatalog';
-import { useProducts } from './hooks/useProduct';
 
 function App() {
-  const { products, loading, error } = useProducts();
-
 
   return (
     <div className="App">
