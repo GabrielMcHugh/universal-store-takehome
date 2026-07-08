@@ -1,24 +1,21 @@
-import express, { Request, Response } from "express";
-import mongoose from "mongoose";
-import { createApp } from "./app";
+import { Catalog } from "./model/catalog";
+import { connectDb, disconnectDb } from "./db/connect";
 
-const mongoUrl = process.env.MONGO_URL as string;
-const clientUrl = process.env.CLIENT_URL as string;
-const port = 3000;
-
-async function start() {
-    await mongoose
-        .connect(mongoUrl)
-        .then(() => console.log("Connected to MongoDB"))
-
-    const app = createApp({clientUrl})
-    app.listen(port, () => {
-        console.log(`Catalog service is running at http://localhost:${port}`);
-    });
-
+export async function seedDatabase() {
+  await Catalog.deleteMany({});
+  await Catalog.create({ sku: "111111", title: "Pen", image: "https://picsum.photos/200", price: 3 });
+  await Catalog.create({ sku: "222222", title: "Paper", image: "https://picsum.photos/200", price: 1 });
+  await Catalog.create({ sku: "333333", title: "Key", image: "https://picsum.photos/200", price: 7 });
+  await Catalog.create({ sku: "444444", title: "Marker", image: "https://picsum.photos/200", price: 2 });
 }
 
-start().catch((err) => {
-    console.error("Could not connect to MongoDB", err);
-    process.exit(1)
-});
+// Only run as CLI when executed directly: npm run seed
+if (require.main === module) {
+  connectDb()
+    .then(() => seedDatabase())
+    .then(() => disconnectDb())
+    .catch((err) => {
+      console.error("Error seeding database:", err);
+      process.exit(1);
+    });
+}
