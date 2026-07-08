@@ -65,19 +65,19 @@ describe('cross-service: catalog + inventory', () => {
             price: 3,
         });
 
-        //“We don’t stock SKUs that aren’t merchandised in catalog.”
-        test('every inventory sku exists in catalog', async () => {
-            const [catalog, inventory] = await Promise.all([
-                fetchJson<CatalogItem[]>(`${CATALOG_URL}/catalog`),
-                fetchJson<InventoryItem[]>(`${INVENTORY_URL}/inventory`),
-            ]);
-            const catalogSkus = new Set(catalog.map((item) => item.sku));
-            for (const item of inventory) {
-                expect(catalogSkus.has(item.sku)).toBe(true);
-            }
-        });
-    })
 
+    })
+    //“We don’t stock SKUs that aren’t merchandised in catalog.”
+    test('every inventory sku exists in catalog', async () => {
+        const [catalog, inventory] = await Promise.all([
+            fetchJson<CatalogItem[]>(`${CATALOG_URL}/catalog`),
+            fetchJson<InventoryItem[]>(`${INVENTORY_URL}/inventory`),
+        ]);
+        const catalogSkus = new Set(catalog.map((item) => item.sku));
+        for (const item of inventory) {
+            expect(catalogSkus.has(item.sku)).toBe(true);
+        }
+    });
 
 
 
