@@ -18,6 +18,10 @@ export function createApp(config: AppConfig = {}) {
         next();
     });
 
+    app.get("/catalog", async(_: Request, res: Response) => {
+        res.json(await Catalog.find());
+    })
+
     return app;
 }
 
