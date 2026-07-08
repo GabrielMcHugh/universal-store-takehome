@@ -11,7 +11,6 @@ export async function fetchInventory(signal?: AbortSignal): Promise<InventoryIte
 
     const data: unknown = await response.json();
 
-    // inventoryResponseSchema expects an array, but you were validating single object
     const result = inventoryResponseSchema.safeParse(data);
 
     if (!result.success) {
