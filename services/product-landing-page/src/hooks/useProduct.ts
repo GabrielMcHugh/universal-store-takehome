@@ -10,7 +10,11 @@ export function useProducts() {
     const loadProducts = useSetAtom(loadProductsAtom);
 
     useEffect(() => {
+        const controller = new AbortController();
+
         loadProducts();
+
+         return () => controller.abort();
     }, [loadProducts])
 
     return { products, loading, error, refect: () => loadProducts() };
