@@ -23,7 +23,14 @@ export function createApp(config: AppConfig = {}) {
     });
 
     app.get("/catalog/:sku", async (req: Request, res: Response) => {
-        res.json(await Catalog.findOne({ sku: req.params.sku }));
+        const item = await Catalog.findOne({ sku: req.params.sku });
+
+        if (!item) {
+            res.status(404).json({ error: "Catalog item not found" });
+            return;
+        }
+
+        res.json(item);
     });
 
     return app;
