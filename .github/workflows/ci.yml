@@ -53,8 +53,15 @@ jobs:
         working-directory: tests/integration
         run: |
           npm ci
+          npm run test:integration
+
+      - name: Install Playwright + run e2e
+        working-directory: tests/e2e
+        run: |
+          npm ci
           npx playwright install --with-deps chromium
-          npm run test:e2e
+          npm run tests:e2e
+      
 
 
 
