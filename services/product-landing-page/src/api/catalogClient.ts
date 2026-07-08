@@ -2,8 +2,8 @@ import { CATALOG_URL } from "../config/api";
 import { catalogResponseSchema } from "../schemas/catalogItemSchema";
 import { CatalogItem } from "../types/catalogItem";
 
-export async function fetchCatalog(): Promise<CatalogItem[]> {
-    const response = await fetch(`${CATALOG_URL}/catalog`);
+export async function fetchCatalog(signal?: AbortSignal): Promise<CatalogItem[]> {
+    const response = await fetch(`${CATALOG_URL}/catalog`, { signal });
 
     if (!response.ok) {
         throw new Error(`Catalog request failed: ${response.status}`);
