@@ -7,7 +7,8 @@ const port = 3000;
 
 async function start() {
   await connectDb();
-  await seedDatabase();  
+  await seedDatabase();
+
   const app = createApp({ clientUrl });
   app.listen(port, () => {
     console.log(`Catalog service is running at http://localhost:${port}`);
