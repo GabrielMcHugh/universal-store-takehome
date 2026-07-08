@@ -70,6 +70,9 @@ jobs:
           path: tests/e2e/playwright-report/
           retention-days: 7
       
+      - name: Stop docker-compose stack
+        if: always()
+        run: docker compose down -v
       
 
 
