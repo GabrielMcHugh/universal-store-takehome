@@ -5,9 +5,20 @@ on:
   pull_request:
 
 jobs:
-  hello:
+  catalog-unit-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - run: ls -la
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+
+      - name: Install catalog dependencies
+        working-directory: services/catalog
+        run: npm ci
+
+      - name: Run catalog tests
+        working-directory: services/catalog
+        run: npm test
