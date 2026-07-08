@@ -52,6 +52,17 @@ jobs:
             tests/integration/package-lock.json
             tests/e2e/package-lock.json
 
+      - name: Get Playwright node-version
+        id: playwright-version 
+        working-directory: tests/e2e
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> $GITHUB_OUTPUT
+      
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms0playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
       - name: Start docker-compose stack
         run: docker compose up -d --build
 
