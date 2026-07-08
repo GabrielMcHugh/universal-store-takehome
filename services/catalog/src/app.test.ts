@@ -17,6 +17,12 @@ export const catalogItemFixture = (
 
 const singleItemTest: CatalogItem = catalogItemFixture()
 
+const multiItemTest: CatalogItem[] = [
+    catalogItemFixture({ sku: "SKU-001" }),
+    catalogItemFixture({ sku: "SKU-002" }),
+    catalogItemFixture({ sku: "SKU-003" })
+];
+
 
 describe("GET /catalog", () => {
     let mongo: MongoMemoryServer;
@@ -45,6 +51,20 @@ describe("GET /catalog", () => {
         expect(res.status).toBe(200);
         expect(res.body).toHaveLength(1);
         expect(res.body[0]).toMatchObject(singleItemTest);
+    });
+
+    it("returns multiple catalog items", async () => {
+        await Catalog.create(multiItemTest);
+
+        const res = await request(app).get("/catalog");
+
+        expect(res.status).toBe(200);
+        expect(res.body).toHaveLength(multiItemTest.length);
+        expect(res.body).toEqual(
+            expect.arrayContaining(
+                multiItemTest.map(item => expect.objectContaining(item))
+            )
+        );
     });
 
     //Empty Db
