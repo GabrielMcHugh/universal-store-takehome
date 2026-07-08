@@ -9,6 +9,7 @@ async function seedDatabase() {
     await Inventory.create({ sku: '111111', quantity: 3 });
     await Inventory.create({ sku: '222222', quantity: 7 });
     await Inventory.create({ sku: '333333', quantity: 1 });
+    await Inventory.create({ sku: '444444', quantity: 0 });
     await mongoose.connection.close();
 }
 
