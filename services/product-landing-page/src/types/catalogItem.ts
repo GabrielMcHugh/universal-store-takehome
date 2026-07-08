@@ -1,5 +1,5 @@
 // PLP knows what the API returns — not how catalog defines its Mongoose model
-interface CatalogItem {
+export interface CatalogItem {
   sku: string;
   title: string;
   price: number;
