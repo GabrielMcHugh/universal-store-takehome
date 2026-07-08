@@ -1,21 +1,20 @@
-import { Catalog } from "./model/catalog";
-import { connectDb, disconnectDb } from "./db/connect";
+import { createApp } from "./app";
+import { connectDb } from "./db/connect";
+import { seedDatabase } from "./seed";
 
-export async function seedDatabase() {
-  await Catalog.deleteMany({});
-  await Catalog.create({ sku: "111111", title: "Pen", image: "https://picsum.photos/200", price: 3 });
-  await Catalog.create({ sku: "222222", title: "Paper", image: "https://picsum.photos/200", price: 1 });
-  await Catalog.create({ sku: "333333", title: "Key", image: "https://picsum.photos/200", price: 7 });
-  await Catalog.create({ sku: "444444", title: "Marker", image: "https://picsum.photos/200", price: 2 });
+const clientUrl = process.env.CLIENT_URL ?? "http://localhost:8080";
+const port = 3000;
+
+async function start() {
+  await connectDb();
+  await seedDatabase();  
+  const app = createApp({ clientUrl });
+  app.listen(port, () => {
+    console.log(`Catalog service is running at http://localhost:${port}`);
+  });
 }
 
-// Only run as CLI when executed directly: npm run seed
-if (require.main === module) {
-  connectDb()
-    .then(() => seedDatabase())
-    .then(() => disconnectDb())
-    .catch((err) => {
-      console.error("Error seeding database:", err);
-      process.exit(1);
-    });
-}
+start().catch((err) => {
+  console.error("Could not start catalog service", err);
+  process.exit(1);
+});
