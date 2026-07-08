@@ -19,13 +19,13 @@ export const catalogItemFixture = (
 const singleItemTest: CatalogItem = catalogItemFixture()
 
 const multiItemTest: CatalogItem[] = [
-    catalogItemFixture({ sku: "SKU-001" }),
-    catalogItemFixture({ sku: "SKU-002" }),
-    catalogItemFixture({ sku: "SKU-003" })
+    catalogItemFixture({ sku: "SKU-001", title: "Product 1" }),
+    catalogItemFixture({ sku: "SKU-002", title: "Product 2" }),
+    catalogItemFixture({ sku: "SKU-003", title: "Product 3" })
 ];
 
 
-describe("GET /catalog", () => {
+describe("Catalog API", () => {
     let mongo: MongoMemoryServer;
     const app = createApp();
 
@@ -43,35 +43,59 @@ describe("GET /catalog", () => {
         await Catalog.deleteMany({})
     })
 
-    //Happy Path
-    it("returns catalog items", async () => {
-        await Catalog.create(singleItemTest);
+    describe("GET /catalog", () => {
+        it("returns catalog items", async () => {
+            await Catalog.create(singleItemTest);
 
-        const res = await request(app).get("/catalog");
+            const res = await request(app).get("/catalog");
 
-        expect(res.status).toBe(200);
-        expect(res.body).toHaveLength(1);
-        expect(res.body[0]).toMatchObject(singleItemTest);
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveLength(1);
+            expect(res.body[0]).toMatchObject(singleItemTest);
+        });
+
+        it("returns multiple catalog items", async () => {
+            await Catalog.create(multiItemTest);
+
+            const res = await request(app).get("/catalog");
+
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveLength(multiItemTest.length);
+            expect(res.body).toEqual(
+                expect.arrayContaining(
+                    multiItemTest.map(item => expect.objectContaining(item))
+                )
+            );
+        });
+
+        it("returns 200 with an empty array when no items exist", async () => {
+            const res = await request(app).get('/catalog');
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual([]);
+        });
     });
 
-    it("returns multiple catalog items", async () => {
-        await Catalog.create(multiItemTest);
+    describe("GET /catalog/:sku", () => {
 
-        const res = await request(app).get("/catalog");
+        it("returns the catalog item for a specific sku", async () => {
+            await Catalog.create(multiItemTest);
+            const expectedItem = multiItemTest[1];
 
-        expect(res.status).toBe(200);
-        expect(res.body).toHaveLength(multiItemTest.length);
-        expect(res.body).toEqual(
-            expect.arrayContaining(
-                multiItemTest.map(item => expect.objectContaining(item))
-            )
-        );
-    });
+            const res = await request(app).get(`/catalog/${expectedItem.sku}`);
 
-    //Empty Db
-    it('returns an empty array when no items exist', async () => {
-        const res = await request(app).get('/catalog');
-        expect(res.status).toBe(200);
-        expect(res.body).toEqual([]);
+            expect(res.status).toBe(200);
+            expect(res.body).toMatchObject(expectedItem);
+        });
+
+        it("returns 404 if the sku does not exist", async () => {
+            await Catalog.create(singleItemTest);
+            const res = await request(app).get("/catalog/nonexistentsku");
+            expect(res.status).toBe(404);
+        });
+
+        it("returns 404 when the catalog is empty", async () => {
+            const res = await request(app).get("/catalog/SKU-001");
+            expect(res.status).toBe(404);
+        });
     });
 });
