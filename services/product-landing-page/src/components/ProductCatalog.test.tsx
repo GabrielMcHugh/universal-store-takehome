@@ -1,17 +1,70 @@
 import { render, screen } from '@testing-library/react';
-import { ProductCard } from './ProductCard';
-import { shirtProduct } from './test/fixtures';
+import { Provider, createStore } from 'jotai';
+import { ProductCatalog } from './ProductCatalog';
+import { fetchCatalog } from '../api/catalogClient';
+import { fetchInventory } from '../api/inventoryClient';
+import { catalogItems, inventoryItems } from './test/fixtures';
 
-describe('ProductCard', () => {
-  test('renders product details', () => {
-    render(<ProductCard product={shirtProduct} />);
+jest.mock('../api/catalogClient');
+jest.mock('../api/inventoryClient');
 
-    expect(screen.getByRole('heading', { name: 'Shirt' })).toBeInTheDocument();
-    expect(screen.getByText('SKU: 111111')).toBeInTheDocument();
-    expect(screen.getByText('3 in stock')).toBeInTheDocument();
-    expect(screen.getByText('$49.99')).toBeInTheDocument();
+const mockFetchCatalog = fetchCatalog as jest.MockedFunction<typeof fetchCatalog>;
+const mockFetchInventory = fetchInventory as jest.MockedFunction<typeof fetchInventory>;
 
-    const image = screen.getByRole('img', { name: 'Shirt' });
-    expect(image).toHaveAttribute('src', shirtProduct.image);
-  });
+function renderProductCatalog() {
+    //To prevent state leaks (store isolation)
+    const store = createStore();
+    return render(
+        <Provider store={store}>
+            <ProductCatalog />
+        </Provider>
+    );
+}
+
+describe('ProductCatalog', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('shows loading state initially', () => {
+        mockFetchCatalog.mockReturnValue(new Promise(() => { }));   // never resolves
+        mockFetchInventory.mockReturnValue(new Promise(() => { }));
+
+        renderProductCatalog();
+
+        expect(screen.getByText(/loading products/i)).toBeInTheDocument();
+    });
+
+    test('renders in-stock products only', async () => {
+        mockFetchCatalog.mockResolvedValue(catalogItems);
+        mockFetchInventory.mockResolvedValue(inventoryItems);
+
+        renderProductCatalog();
+
+        expect(await screen.findByRole('heading', { name: 'Shirt' })).toBeInTheDocument();
+        expect(screen.queryByRole('heading', { name: 'Hat' })).not.toBeInTheDocument();
+    });
+
+    test('shows empty state when no products are in stock', async () => {
+        mockFetchCatalog.mockResolvedValue(catalogItems);
+        mockFetchInventory.mockResolvedValue([
+            { sku: '111111', quantity: 0 },
+            { sku: '222222', quantity: 0 },
+        ]);
+
+        renderProductCatalog();
+
+        expect(await screen.findByText(/no products in stock/i)).toBeInTheDocument();
+    });
+
+    test('shows error when catalog fetch fails', async () => {
+        mockFetchCatalog.mockRejectedValue(new Error('Catalog request failed: 500'));
+        mockFetchInventory.mockResolvedValue(inventoryItems);
+
+        renderProductCatalog();
+
+        expect(await screen.findByRole('alert')).toHaveTextContent(
+            'Catalog request failed: 500'
+        );
+    });
 });
