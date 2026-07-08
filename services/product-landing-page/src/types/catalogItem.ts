@@ -10,3 +10,6 @@ export interface InventoryItem {
     sku: string;
     quantity: number;
 }
+
+//combined
+export type InStockProduct = CatalogItem & Pick<InventoryItem, 'quantity'>
