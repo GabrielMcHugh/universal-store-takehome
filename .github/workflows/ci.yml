@@ -8,6 +8,7 @@ jobs:
   unit-tests:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: catalog
@@ -26,19 +27,20 @@ jobs:
           cache: npm
           cache-dependency-path: ${{ matrix.path }}/package-lock.json
 
-      - name: Install  dependencies
+      - name: Install dependencies
         working-directory: ${{ matrix.path }}
         run: npm ci
 
-      - name: Run tests ${{ matrix.path }}
+      - name: Run tests (${{ matrix.name }})
         working-directory: ${{ matrix.path }}
         env:
           CI: true
         run: ${{ matrix.test }}
-    
+
   integration-and-e2e:
     runs-on: ubuntu-latest
     needs: unit-tests
+
     steps:
       - uses: actions/checkout@v4
 
@@ -48,54 +50,28 @@ jobs:
 
       - name: Start docker-compose stack
         run: docker compose up -d --build
-      
+
       - name: Run integration tests
         working-directory: tests/integration
         run: |
           npm ci
           npm run test:integration
 
-      - name: Install Playwright + run e2e
+      - name: Install Playwright + run E2E
         working-directory: tests/e2e
         run: |
           npm ci
           npx playwright install --with-deps chromium
-          npm run tests:e2e
-      
-      - name: Upload playwright report on failure
+          npm run test:e2e
+
+      - name: Upload Playwright report on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: tests/e2e/playwright-report/
           retention-days: 7
-      
+
       - name: Stop docker-compose stack
         if: always()
         run: docker compose down -v
-      
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
