@@ -9,7 +9,7 @@ export const loadingAtom = atom(true);
 export const errorAtom = atom<string | null>(null)
 
 //On load/init function
-export const loadProductsAtom = atom(null, async (_get, set) => {
+export const loadProductsAtom = atom(null, async (_get, set, signal?: AbortSignal) => {
     set(loadingAtom, true);
     set(errorAtom, null);
 
@@ -18,6 +18,9 @@ export const loadProductsAtom = atom(null, async (_get, set) => {
             fetchCatalog(),
             fetchInventory(),
         ]);
+
+        if (signal?.aborted) return;
+
         set(productsAtom, getInStockProducts(catalog, inventory));
     } catch (err) {
         set(errorAtom, err instanceof Error ? err.message : 'Failed to load products');
