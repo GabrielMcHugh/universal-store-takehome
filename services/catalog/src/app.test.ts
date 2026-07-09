@@ -128,4 +128,30 @@ describe("Catalog API", () => {
             expect(res.status).toBe(400);
         });
     });
+
+    describe("error handling", () => {
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+
+        it("returns 404 for unknown routes", async () => {
+            const res = await request(app).get("/unknown");
+
+            expect(res.status).toBe(404);
+            expect(res.body).toEqual({ error: "Not found" });
+        });
+
+        it("returns 500 when the database query fails", async () => {
+            jest.spyOn(Catalog, "find").mockReturnValue({
+                select: () => ({
+                    lean: () => Promise.reject(new Error("Database unavailable")),
+                }),
+            } as never);
+
+            const res = await request(app).get("/catalog");
+
+            expect(res.status).toBe(500);
+            expect(res.body).toEqual({ error: "Internal server error" });
+        });
+    });
 });
