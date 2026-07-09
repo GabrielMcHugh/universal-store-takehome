@@ -1,3 +1,0 @@
--Inventory much more frequent writes
-- need to split app into app and server so that test can hit routes without binding to port 
-- The 

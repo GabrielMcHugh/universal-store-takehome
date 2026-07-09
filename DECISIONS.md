@@ -234,32 +234,12 @@ Improvements were aligned to the [ACSC Essential Eight](https://www.cyber.gov.au
 
 ---
 
-## Production considerations
-
-These were considered but not fully implemented in the take-home scope:
-
-### Rate limiting at scale
-- Per-IP limits require `trust proxy` when behind a reverse proxy, so `req.ip` reads the real client from `X-Forwarded-For`.
-- Multiple containers behind a load balancer need a shared store (e.g. Redis) for global enforcement.
-- IP-based limits work for anonymous public APIs but not for authenticated partners, mobile carrier NAT, or corporate offices sharing one IP — API-key-based identity is better there.
-- The primary rate limiter should sit on an API gateway; per-service limits are sufficient for this project.
-
-### Monitoring
-- Heartbeat endpoint stubs added but not wired to Pingdom or similar.
-
-### BFF traffic routing
-- In production, BFF traffic would get its own route/rate-limit policy separate from direct catalog/inventory access (which would be internal only).
-
----
-
 ## What I would do with more time
 
 - Logging middleware on plp-bff
 - Docker layer caching in CI
 - More failure-mode tests (DB down, upstream timeout, invalid input, CORS)
-- Dedicated InStock microservice if multiple consumers emerge
 - PLP UI styled closer to the Universal Store site
-- Creating a separate write service (if thats required)
 
 ---
 
@@ -273,3 +253,18 @@ These were considered but not fully implemented in the take-home scope:
 | Integration tests | `tests/integration/README.md` | — |
 | E2E tests | `tests/e2e/README.md` | — |
 | Postman collection | `tests/postman/` | Import into Postman or run via Newman |
+
+## Production & scaling
+
+Ideas on how this would evolve beyond the take-home. Really just depends on what the requirements are.
+
+1. **API gateway** in front of all services — single entry point, auth, primary rate limiting. Only the BFF is public; catalog and inventory stay internal.
+2. **Separate write service** for mutations (stock adjustments, catalog updates). Read APIs stay optimised for query throughput.
+3. **Load balancer + Kubernetes** (or ECS/Cloud Run) for elastic, horizontally scaled container workloads.
+4. **Datadog / Sumo Logic** for centralised logging, dashboards, and alerts. Wire up the heartbeat stubs for uptime monitoring.
+5. **Authentication & authorisation** — public PLP reads stay open; admin writes and service-to-service calls require API keys or OAuth.
+6. **Per-route rate limits** on internal services for flexible policies (e.g. stricter limits on `GET /inventory/:sku` to prevent enumeration).
+7. **Redis for rate-limit counters** across multiple container replicas — in-memory limiters only see their own pod. The gateway handles the coarse public cap; Redis is needed at the service level when replicas share a limit. BFF response caching is a separate win (short TTL on `/products/in-stock`).
+8. **S3 + CDN** for product images — faster edge loading on the PLP; catalog stores CDN URLs, uploads go through the write service.
+
+---
