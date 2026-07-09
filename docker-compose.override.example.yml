@@ -1,0 +1,12 @@
+# Optional local-only overrides (e.g. MongoDB Compass).
+# Copy to docker-compose.override.yml — that file is gitignored and merged automatically.
+#
+#   cp docker-compose.override.example.yml docker-compose.override.yml
+
+services:
+  catalog-mongo:
+    ports:
+      - "3001:27017"
+  inventory-mongo:
+    ports:
+      - "4001:27017"

@@ -13,9 +13,7 @@ services:
       - MONGO_URL=mongodb://catalog-mongo:27017/mydatabase1
       - CLIENT_URL=${CLIENT_URL:-http://localhost:8080}
   catalog-mongo:
-    image: mongo:latest
-    ports:
-      - "3001:27017"
+    image: mongo:7.0
 
   # Inventory service containers
   inventory:
@@ -31,9 +29,7 @@ services:
       - MONGO_URL=mongodb://inventory-mongo:27017/mydatabase1
       - CLIENT_URL=${CLIENT_URL:-http://localhost:8080}
   inventory-mongo:
-    image: mongo:latest
-    ports:
-      - "4001:27017"
+    image: mongo:7.0
 
   # PLP service container
   product-landing-page:
