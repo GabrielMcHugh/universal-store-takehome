@@ -10,7 +10,9 @@ Though, towards the end of the project I allowed the agent to refactor files mor
 Doing it again, I would have refactored the plp earlier into a frontend/backend. I held off at the start because it didn't specify it in the task requirements but decided to towards the end because it was obviously necessary.
 
 Lastly, for this project I decided not to focus on the front end. I'm quite comfortable with front end design but I made the assumption that that wasn't the focus of this project.
+
 ---
+
 ## Run the stack
 
 For local development without Docker, run `./dev-local.sh`.
