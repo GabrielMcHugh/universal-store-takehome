@@ -60,7 +60,7 @@ This is a thin system for displaying catalog and inventory data. Catalog owns pr
 
 
 # Key Decisions
-### Splitting plp-bff into a Backend for Frontend
+### Splitting Product Landing Page into a Backend for Frontend
 This was the obvious decision to make to achieve loose coupling. Joining catalog and inventory in the browser wouldn't make sense as it pushes domain logic into the ui. Clients should be thin and data transformation should take place on the backend. Instead it makes much more sense for it to fetch from a single api and display that data. If it was left the way it was, it would tightly couple the frontend with the catalog and inventory which would also mean that the two apis couldn't evolve independently.
 
 **To be explicit:**
