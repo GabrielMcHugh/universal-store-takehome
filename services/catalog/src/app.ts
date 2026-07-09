@@ -1,6 +1,8 @@
 import express, { NextFunction, Request, Response } from "express";
 import { Catalog } from "./model/catalog";
 import { validateSku } from "./service/validation/sku";
+import { asyncHandler } from "./middleware/asyncHandler";
+import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { createRateLimiter } from "./middleware/rateLimiter";
 import helmet from "helmet";
 
@@ -22,10 +24,8 @@ export function createApp(config: AppConfig) {
     const app = express();
 
     app.use(helmet());
-    app.use(express.json())
-    app.use(createRateLimiter(config.rateLimit));
+    app.use(express.json());
 
-    //Add headers
     app.use(function (req: Request, res: Response, next: NextFunction) {
         res.header("Access-Control-Allow-Origin", config.clientUrl);
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -38,11 +38,13 @@ export function createApp(config: AppConfig) {
         next();
     });
 
-    app.get("/catalog", async (_: Request, res: Response) => {
-        res.json(await Catalog.find().select('sku title price image').lean());
-    });
+    app.use(createRateLimiter(config.rateLimit));
 
-    app.get("/catalog/:sku", async (req: Request, res: Response) => {
+    app.get("/catalog", asyncHandler(async (_: Request, res: Response) => {
+        res.json(await Catalog.find().select('sku title price image').lean());
+    }));
+
+    app.get("/catalog/:sku", asyncHandler(async (req: Request, res: Response) => {
         const sku = validateSku(req.params.sku);
 
         if (!sku) {
@@ -52,17 +54,17 @@ export function createApp(config: AppConfig) {
 
         const item = await Catalog.findOne({ sku }).select('sku title price image').lean();
 
-
-
         if (!item) {
             res.status(404).json({ error: "Catalog item not found" });
             return;
         }
 
         res.json(item);
-    });
+    }));
+
+    app.use(notFoundHandler);
+    app.use(errorHandler);
 
     return app;
 }
-
 
