@@ -31,6 +31,22 @@ services:
   inventory-mongo:
     image: mongo:7.0
 
+  # PLP BFF
+  plp-bff:
+    build: ./services/plp-bff
+    ports:
+      - "5000:5000"
+    depends_on:
+      - catalog
+      - inventory
+    volumes:
+      - ./services/plp-bff:/app:cached
+      - plp_bff_node_modules:/app/node_modules
+    environment:
+      - CATALOG_URL=http://catalog:3000
+      - INVENTORY_URL=http://inventory:4000
+      - CLIENT_URL=${CLIENT_URL:-http://localhost:8080}
+
   # PLP service container
   product-landing-page:
     build: ./services/product-landing-page
@@ -40,13 +56,12 @@ services:
     ports:
       - "8080:3000"
     depends_on:
-      - catalog
-      - inventory
+      - plp-bff
     environment:
-      - REACT_APP_CATALOG_URL=${REACT_APP_CATALOG_URL:-http://localhost:3000}
-      - REACT_APP_INVENTORY_URL=${REACT_APP_INVENTORY_URL:-http://localhost:4000}
+      - REACT_APP_BFF_URL=${REACT_APP_BFF_URL:-http://localhost:5000}
 
 volumes:
     catalog_node_modules:
     inventory_node_modules:
+    plp_bff_node_modules:
     plp_node_modules:

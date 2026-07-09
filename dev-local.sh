@@ -5,11 +5,13 @@
 #
 # - Catalog:   http://localhost:3000
 # - Inventory: http://localhost:4000
+# - BFF:       http://localhost:5000
 # - PLP:       http://localhost:8080
 #
 # Prerequisites (run once):
 #   cd services/catalog && npm install
 #   cd services/inventory && npm install
+#   cd services/plp-bff && npm install
 #   cd services/product-landing-page && npm install
 #
 # Usage:
@@ -29,9 +31,10 @@ kill_port() {
     || true
 }
 
-echo "Stopping any previous local instances on ports 3000, 4000, 8080..."
+echo "Stopping any previous local instances on ports 3000, 4000, 5000, 8080..."
 kill_port 3000
 kill_port 4000
+kill_port 5000
 kill_port 8080
 sleep 1
 
@@ -52,6 +55,9 @@ open_window "Catalog" "$ROOT/services/catalog" "npm run dev"
 
 echo "Opening inventory in a new window (http://localhost:4000)..."
 open_window "Inventory" "$ROOT/services/inventory" "npm run dev"
+
+echo "Opening PLP BFF in a new window (http://localhost:5000)..."
+open_window "PLP BFF" "$ROOT/services/plp-bff" "npm run dev"
 
 echo "Opening PLP in a new window (http://localhost:8080)..."
 # Use npx react-scripts directly — npm start hardcodes PORT=3000 with Unix syntax

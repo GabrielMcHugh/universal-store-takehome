@@ -13,6 +13,7 @@ jobs:
         path:
           - services/catalog
           - services/inventory
+          - services/plp-bff
           - services/product-landing-page
 
     steps:
@@ -43,6 +44,9 @@ jobs:
             test: npm test
           - name: inventory
             path: services/inventory
+            test: npm test
+          - name: plp-bff
+            path: services/plp-bff
             test: npm test
           - name: product-landing-page
             path: services/product-landing-page

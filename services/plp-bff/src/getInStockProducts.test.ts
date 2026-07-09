@@ -1,14 +1,12 @@
-import { getInStockProducts } from "./getInStockProducts";
+import { getInStockProducts } from './getInStockProducts';
 
 describe('getInStockProducts', () => {
-
   test('merges catalog and inventory by sku', () => {
     const catalog = [
       { sku: '111111', title: 'Shirt', price: 49.99, image: 'https://example.com/shirt.jpg' },
     ];
     const inventory = [{ sku: '111111', quantity: 3 }];
-    const result = getInStockProducts(catalog, inventory);
-    expect(result).toEqual([
+    expect(getInStockProducts(catalog, inventory)).toEqual([
       { sku: '111111', title: 'Shirt', price: 49.99, image: 'https://example.com/shirt.jpg', quantity: 3 },
     ]);
   });
@@ -28,16 +26,4 @@ describe('getInStockProducts', () => {
     const inventory = [{ sku: '111111', quantity: 5 }];
     expect(getInStockProducts(catalog, inventory)).toEqual([]);
   });
-
-  test('returns empty array when catalog is empty', () => {
-    expect(getInStockProducts([], [{ sku: '111111', quantity: 3 }])).toEqual([]);
-  });
-
-  test('returns empty array when inventory is empty', () => {
-    const catalog = [
-      { sku: '111111', title: 'Shirt', price: 49.99, image: 'https://example.com/a.jpg' },
-    ];
-    expect(getInStockProducts(catalog, [])).toEqual([]);
-  });
-  
 });

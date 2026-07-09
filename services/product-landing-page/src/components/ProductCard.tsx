@@ -1,4 +1,4 @@
-import { InStockProduct } from '../types/catalogItem';
+import { InStockProduct } from '../types/product';
 
 type Props = {
   product: InStockProduct;

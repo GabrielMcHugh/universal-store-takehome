@@ -1,4 +1,4 @@
-import { InStockProduct } from '../types/catalogItem';
+import { InStockProduct } from '../types/product';
 import { ProductCard } from './ProductCard';
 type Props = {
   products: InStockProduct[];
