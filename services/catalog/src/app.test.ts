@@ -48,6 +48,13 @@ describe("Catalog API", () => {
     })
 
     describe("GET /catalog", () => {
+        it("sets CORS origin to configured client URL", async () => {
+            const res = await request(app).get("/catalog");
+
+            expect(res.headers["access-control-allow-origin"]).toBe(testClientUrl);
+            expect(res.headers["x-content-type-options"]).toBe("nosniff");
+        });
+
         it("returns catalog items", async () => {
             await Catalog.create(singleItemTest);
 

@@ -46,6 +46,13 @@ describe('Inventory API', () => {
   });
 
   describe('GET /inventory', () => {
+    it('sets CORS origin to configured client URL', async () => {
+      const res = await request(app).get('/inventory');
+
+      expect(res.headers['access-control-allow-origin']).toBe(testClientUrl);
+      expect(res.headers['x-content-type-options']).toBe('nosniff');
+    });
+
     it('returns inventory items', async () => {
       await Inventory.create(singleItemTest);
 
