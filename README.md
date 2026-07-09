@@ -52,6 +52,7 @@ The Product Landing Page service needs to be updated to display a list of produc
 
 ## What I would do if I had more time
 - BFF/Proxy backend: 1 request and backend can handle merge, hide internal services, no cors, loose coupling
+- Logging on plp-bff
 
 ## Production consideration
 RateLimiting
@@ -66,4 +67,6 @@ Heartbeat
 - Added stubs, but would need for service monitoring
 Logging
 - implemented a basic logger but really would hook it up to a service like sumologic or datadog
+Swagger
+- protect or disable Swagger: it exposes your full API surface (routes, schemas, errors), which helps attackers. Common approaches are basic auth on /docs, only enabling it in non-prod, or keeping it on an internal network/VPN.
 

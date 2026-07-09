@@ -1,0 +1,68 @@
+openapi: 3.0.3
+info:
+  title: PLP BFF API
+  description: Backend-for-frontend that aggregates catalog and inventory data for the product landing page.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+    description: Local development
+paths:
+  /products/in-stock:
+    get:
+      summary: List in-stock products
+      description: Aggregates catalog and inventory data and returns products with quantity greater than zero.
+      operationId: getInStockProducts
+      responses:
+        '200':
+          description: In-stock products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InStockProduct'
+        '502':
+          description: Upstream catalog or inventory service failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: Failed to load products
+components:
+  schemas:
+    InStockProduct:
+      type: object
+      required:
+        - sku
+        - title
+        - price
+        - image
+        - quantity
+      properties:
+        sku:
+          type: string
+          example: '111111'
+        title:
+          type: string
+          example: Shirt
+        price:
+          type: number
+          format: float
+          example: 49.99
+        image:
+          type: string
+          format: uri
+          example: https://example.com/shirt.jpg
+        quantity:
+          type: integer
+          minimum: 1
+          example: 3
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          example: Not found

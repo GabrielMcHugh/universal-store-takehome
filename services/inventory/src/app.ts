@@ -1,4 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
+import path from "path";
+import swaggerUi from "swagger-ui-express";
 import { Inventory } from "./model/inventory";
 import { validateSku } from "./service/validation/sku";
 import { asyncHandler } from "./middleware/asyncHandler";
@@ -47,6 +49,21 @@ export function createApp(config: AppConfig) {
   //app.get("/heartbeat", (_req, res) => res.sendStatus(200));
 
   app.use(createRateLimiter(config.rateLimit));
+
+  const openApiPath = path.join(__dirname, "../openapi.yaml");
+
+  app.get("/openapi.yaml", (_req: Request, res: Response) => {
+    res.type("application/yaml").sendFile(openApiPath);
+  });
+
+  const swaggerOptions = {
+    swaggerOptions: {
+      url: "/openapi.yaml",
+    },
+  };
+
+  app.get("/docs", swaggerUi.setup(undefined, swaggerOptions));
+  app.use("/docs", swaggerUi.serveFiles(undefined, swaggerOptions));
 
   app.get("/inventory", asyncHandler(async (_: Request, res: Response) => {
     res.json(await Inventory.find().select('sku quantity').lean());

@@ -1,0 +1,126 @@
+openapi: 3.0.3
+info:
+  title: Inventory Service API
+  description: |
+    API for querying product inventory quantities.
+
+    Unknown routes return `404` with `{ "error": "Not found" }`.
+  version: 1.0.0
+servers:
+  - url: http://localhost:4000
+    description: Local development server
+paths:
+  /inventory:
+    get:
+      summary: List all inventory items
+      operationId: listInventory
+      tags:
+        - Inventory
+      responses:
+        "200":
+          description: List of inventory items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InventoryItem"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /inventory/{sku}:
+    get:
+      summary: Get inventory item by SKU
+      operationId: getInventoryBySku
+      tags:
+        - Inventory
+      parameters:
+        - name: sku
+          in: path
+          required: true
+          description: Product SKU (alphanumeric and hyphens, 1-64 characters)
+          schema:
+            type: string
+            pattern: "^[A-Za-z0-9-]{1,64}$"
+            minLength: 1
+            maxLength: 64
+          example: "111111"
+      responses:
+        "200":
+          description: Inventory item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+        "400":
+          description: Invalid SKU format
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: Invalid SKU format
+        "404":
+          description: Inventory item not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: Inventory item not found
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+components:
+  schemas:
+    InventoryItem:
+      type: object
+      required:
+        - sku
+        - quantity
+      properties:
+        sku:
+          type: string
+          description: Product SKU (alphanumeric and hyphens, 1-64 characters)
+          pattern: "^[A-Za-z0-9-]{1,64}$"
+          minLength: 1
+          maxLength: 64
+          example: "111111"
+        quantity:
+          type: number
+          description: Available quantity in stock
+          example: 3
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+  responses:
+    NotFound:
+      description: Route not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Not found
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Internal server error
+    TooManyRequests:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Too many requests, please try again later

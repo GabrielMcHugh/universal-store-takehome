@@ -67,4 +67,10 @@ describe('PLP BFF', () => {
     expect(response.status).toBe(404);
     expect(response.body).toEqual({ error: 'Not found' });
   });
+
+  test('GET /docs returns Swagger UI', async () => {
+    const response = await request(app).get('/docs');
+
+    expect(response.status).toBe(200);
+  });
 });

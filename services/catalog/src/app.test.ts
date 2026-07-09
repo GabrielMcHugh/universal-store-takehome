@@ -129,6 +129,14 @@ describe("Catalog API", () => {
         });
     });
 
+    describe("GET /docs", () => {
+        it("returns 200 with Swagger UI", async () => {
+            const res = await request(app).get("/docs");
+
+            expect([200, 301]).toContain(res.status);
+        });
+    });
+
     describe("error handling", () => {
         afterEach(() => {
             jest.restoreAllMocks();

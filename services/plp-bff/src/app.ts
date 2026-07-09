@@ -1,7 +1,11 @@
+import path from 'path';
 import express, { NextFunction, Request, Response } from 'express';
+import swaggerUi from 'swagger-ui-express';
 import { getInStockProducts } from './getInStockProducts';
 import { AppConfig } from './types';
 import { fetchProductSources } from './upstream';
+
+const openapiPath = path.join(__dirname, '../openapi.yaml');
 
 function requireConfig(config: AppConfig) {
   for (const key of ['clientUrl', 'catalogUrl', 'inventoryUrl'] as const) {
@@ -27,6 +31,19 @@ export function createApp(config: AppConfig) {
     }
 
     next();
+  });
+
+  const swaggerSetup = swaggerUi.setup(undefined, {
+    swaggerOptions: {
+      url: '/openapi.yaml',
+    },
+  });
+
+  app.get('/docs', swaggerSetup);
+  app.use('/docs', swaggerUi.serve);
+
+  app.get('/openapi.yaml', (_req: Request, res: Response) => {
+    res.type('application/yaml').sendFile(openapiPath);
   });
 
   app.get('/products/in-stock', async (_req: Request, res: Response) => {

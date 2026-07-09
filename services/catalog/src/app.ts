@@ -1,4 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
+import path from "path";
+import swaggerUi from "swagger-ui-express";
 import { Catalog } from "./model/catalog";
 import { validateSku } from "./service/validation/sku";
 import { asyncHandler } from "./middleware/asyncHandler";
@@ -6,6 +8,8 @@ import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { createRateLimiter } from "./middleware/rateLimiter";
 import { requestLogger } from "./middleware/requestLogger";
 import helmet from "helmet";
+
+const openApiSpecPath = path.join(__dirname, "..", "openapi.yaml");
 
 type AppConfig = {
     clientUrl: string;
@@ -44,6 +48,20 @@ export function createApp(config: AppConfig) {
     //app.get("/heartbeat", (_req, res) => res.sendStatus(200));
 
     app.use(createRateLimiter(config.rateLimit));
+
+    app.get("/openapi.yaml", (_req: Request, res: Response) => {
+        res.type("application/yaml").sendFile(openApiSpecPath);
+    });
+
+    app.use(
+        "/docs",
+        swaggerUi.serve,
+        swaggerUi.setup(undefined, {
+            swaggerOptions: {
+                url: "/openapi.yaml",
+            },
+        })
+    );
 
     app.get("/catalog", asyncHandler(async (_: Request, res: Response) => {
         res.json(await Catalog.find().select('sku title price image').lean());

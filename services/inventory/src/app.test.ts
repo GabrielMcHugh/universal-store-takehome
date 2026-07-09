@@ -131,6 +131,14 @@ describe('Inventory API', () => {
     });
   });
 
+  describe('GET /docs', () => {
+    it('returns 200', async () => {
+      const res = await request(app).get('/docs');
+
+      expect(res.status).toBe(200);
+    });
+  });
+
   describe('error handling', () => {
     afterEach(() => {
       jest.restoreAllMocks();
