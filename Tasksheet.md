@@ -35,24 +35,24 @@ The Product Landing Page service needs to be updated to display a list of produc
 - [x] Render the image, title, sku, remaining quantity and price of each item in the catalog if it has more than 0 stock.
 
 ## Assessment Criteria
-- [ ] Clean, well-structured TypeScript code following best practices and conventions.
+- [x] Clean, well-structured TypeScript code following best practices and conventions: 
 Factory pattern for Express apps; pure merge function in BFF; typed models and explicit response shapes; shared validation modules
-- [ ] Follow a test driven approach
+- [x] Follow a test driven approach:
 Catalog and inventory endpoints were test-first (supertest); BFF merge logic has unit tests; layered integration, Postman, and E2E coverage
-- [ ] An elegant solution that minimizes tight coupling.
+- [x] An elegant solution that minimizes tight coupling: 
 BFF isolates the frontend from catalog/inventory; each service owns its domain type; merge logic lives in one place
-- [ ] Clear and comprehensive documentation of code and decisions made.
+- [x] Clear and comprehensive documentation of code and decisions made:
 In the processs ...
-- [ ] Type annotations and strict typing.
+- [x] Type annotations and strict typing:
 TypeScript throughout; Zod schemas on frontend and backend; lean, explicit API responses instead of raw Mongo serialisation
 
 ---
 
 ## Afterwards
-- [ ] More comprehensive testing (DB down, invalid input, cors, e2e on docker compose)
-- [ ] OpenAPI docs for endpoints
-- [ ] Cyber security: rate limiting, query sanitisation, validation, authentication and authorisation
+- [x] More comprehensive testing (DB down, invalid input, cors, e2e on docker compose)
+- [x] OpenAPI docs for endpoints
+- [x] Cyber security: rate limiting, query sanitisation, validation, authentication and authorisation
     - Essential Eight/OWASPth
     - Essential 8 #4 user application hardening: input validation and query sanitisation
-- [ ] InStock service dedicated API
-- [ ] Integration tests as part of CI/Github Actions
+- [x] InStock service dedicated API
+- [x] Integration tests as part of CI/Github Actions
