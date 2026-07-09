@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import { Inventory } from "./model/inventory";
 import { validateSku } from "./service/validation/sku";
 import { createRateLimiter } from "./middleware/rateLimiter";
@@ -24,7 +24,7 @@ export function createApp(config: AppConfig) {
   app.use(express.json());
   app.use(createRateLimiter(config.rateLimit));
 
-  app.use(function (req: any, res: any, next: Function) {
+  app.use(function (req: Request, res: Response, next: NextFunction) {
     res.header("Access-Control-Allow-Origin", config.clientUrl);
     res.header(
       "Access-Control-Allow-Headers",

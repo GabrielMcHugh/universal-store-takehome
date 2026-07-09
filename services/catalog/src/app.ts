@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import { Catalog } from "./model/catalog";
 import { validateSku } from "./service/validation/sku";
 import { createRateLimiter } from "./middleware/rateLimiter";
@@ -26,11 +26,11 @@ export function createApp(config: AppConfig) {
     app.use(createRateLimiter(config.rateLimit));
 
     //Add headers
-    app.use(function (req: any, res: any, next: Function) {
+    app.use(function (req: Request, res: Response, next: NextFunction) {
         res.header("Access-Control-Allow-Origin", config.clientUrl);
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
-        
+
         if (req.method === "OPTIONS") {
           res.sendStatus(204);
           return;
