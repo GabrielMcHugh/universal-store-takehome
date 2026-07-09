@@ -6,10 +6,10 @@ export function notFoundHandler(_req: Request, res: Response) {
 
 export function errorHandler(
   err: Error,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction
 ) {
-  console.error(err);
+  console.error(`${req.method} ${req.originalUrl}`, err);
   res.status(500).json({ error: "Internal server error" });
 }

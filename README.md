@@ -62,3 +62,8 @@ This would ensure that the limit is enforced globally regardless of who runs the
 In this case you would need an API key and you can rate limit by that identity
 -If we separate the plp into BFF then we would have a separate route for traffic from it
 - The primary rate limiter should be on the api gateway.
+Heartbeat
+- Added stubs, but would need for service monitoring
+Logging
+- implemented a basic logger but really would hook it up to a service like sumologic or datadog
+
