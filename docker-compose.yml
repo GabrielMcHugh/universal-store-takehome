@@ -30,7 +30,6 @@ services:
     environment:
       - MONGO_URL=mongodb://inventory-mongo:27017/mydatabase1
       - CLIENT_URL=${CLIENT_URL:-http://localhost:8080}
-    command: sh -c "cd /services/inventory && npm run seed && npm run dev"
   inventory-mongo:
     image: mongo:latest
     ports:
