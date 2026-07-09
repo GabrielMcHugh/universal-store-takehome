@@ -55,16 +55,13 @@ React application that consumes the BFF. Displays image, title, SKU, price, and 
 - [ ] Type annotations and strict typing.
 
 ## Afterwards
-- [ ] More comprehensive testing (DB down, invalid input, cors, e2e on docker compose)
-- [ ] OpenAPI docs for endpoints
-- [ ] Cyber security: rate limiting, query sanitisation, validation, authentication and authorisation
+- [x] More comprehensive testing (DB down, invalid input, cors, e2e on docker compose)
+- [x] OpenAPI docs for endpoints
+- [x] Cyber security: rate limiting, query sanitisation, validation, authentication and authorisation
     - Essential Eight/OWASPth
     - Essential 8 #4 user application hardening: input validation and query sanitisation
-- [ ] InStock service dedicated API
-- [ ] Integration tests as part of CI/Github Actions
-
-## What I would do if I had more time
-- Logging on plp-bff
+- [x] InStock service dedicated API
+- [x] Integration tests as part of CI/Github Actions
 
 ## Production consideration
 RateLimiting

@@ -1,8 +1,23 @@
+# Hi!
+
+I kept a log alongside me as I developed this codebase. Below is an ai generated summary of the decisions I made along the way. You can see the progression of the app through my git commits.
+
+Instead of overengineering from the get go, I thought I would solve the assement tasks one by one then look to improve it afterwards. However that didn't take me that long and so I thought I would flesh it out with other features I add to my services.
+
+While a lot of our workflow at leap is done through orchestrating agents now, initially I slowed down my pace here and used it as a reference as I implemented the features I wanted to. Towards the end of it I allowed the agent to refactor files more freely as I felt I'd already spent enough time on this project.
+
+Doing it again, I would have refactored the plp earlier into a frontend/backend. I held off at the start because it didn't specify it in the task requirements but decided to towards the end because it was obviously necessary.
+
+Lastly, for this project I decided not to focus on the front end. I'm quite comfortable with front end design but I made the assumption that this project was more focused on backend design.
+
+Anyhow, this is just a short summary of the decisions I made along the way. I would be glad to explain them more in depth in person and what I would do next if I had more time and if we were scaling this project up.
+
+---
+
 # Design Decisions & Reasoning
 
 This document explains the key architectural and implementation decisions made during the Universal Store take-home assessment. It is intended to help reviewers understand **what was built**, **why it was built that way**, and **how it maps to the assessment criteria**.
-
----
+--
 
 ## Architecture overview
 
@@ -244,7 +259,7 @@ These were considered but not fully implemented in the take-home scope:
 - More failure-mode tests (DB down, upstream timeout, invalid input, CORS)
 - Dedicated InStock microservice if multiple consumers emerge
 - PLP UI styled closer to the Universal Store site
-- System design write-up: hosting, scaling, CDN for images, read replicas, cache layer on BFF
+- Creating a separate write service (if thats required)
 
 ---
 
