@@ -147,7 +147,8 @@ RateLimiting
 This would ensure that the limit is enforced globally regardless of who runs the request
 - Scope per api vs per api key: scoping by ip address is good for anonymous public apis, but might not be good for authenticated partners (such as a backend or a some other legitimate partner) and some other conditions (mobile carrier nat, corporate office with one ip)
 In this case you would need an API key and you can rate limit by that identity
-- If we separate the plp into BFF then we would have a separate route for traffic from it
+### Others
+- Since we separated the plp into BFF then we would have a separate route for traffic from it
 - The primary rate limiter should be on the api gateway.
 Heartbeat
 - Added stubs, but would need for service monitoring
