@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
 # Run all Universal Store services locally without Docker.
-# - Catalog:   http://localhost:3000  (in-memory Mongo via mongodb-memory-server)
-# - Inventory: http://localhost:4000  (in-memory Mongo via mongodb-memory-server)
-# - PLP:       http://localhost:8080  (React frontend)
+# Opens each service in its own terminal window (Windows + Git Bash).
+#
+# - Catalog:   http://localhost:3000
+# - Inventory: http://localhost:4000
+# - PLP:       http://localhost:8080
 #
 # Prerequisites (run once):
 #   cd services/catalog && npm install
@@ -11,42 +13,51 @@
 #   cd services/product-landing-page && npm install
 #
 # Usage:
-#   chmod +x dev-local.sh   # first time only
+#   chmod +x dev-local.sh
 #   ./dev-local.sh
 
-# Exit on error, unset variables, and pipeline failures
 set -euo pipefail
 
-# Resolve repo root from this script's location
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 
-# Stop all background services when the script exits or receives Ctrl+C
-cleanup() {
-  echo ""
-  echo "Stopping services..."
-  kill "$CATALOG_PID" "$INVENTORY_PID" "$PLP_PID" 2>/dev/null || true
+# Free a port by killing whatever process is listening on it (Windows).
+# Ignores errors when nothing is bound to the port.
+kill_port() {
+  local port="$1"
+  powershell.exe -NoProfile -Command \
+    "Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id \$_.OwningProcess -Force -ErrorAction SilentlyContinue }" \
+    || true
 }
-trap cleanup EXIT INT TERM
 
-# Catalog API — seeds and serves product metadata
-echo "Starting catalog (http://localhost:3000)..."
-(cd "$ROOT/services/catalog" && npm run dev) &
-CATALOG_PID=$!
+echo "Stopping any previous local instances on ports 3000, 4000, 8080..."
+kill_port 3000
+kill_port 4000
+kill_port 8080
+sleep 1
 
-# Inventory API — seeds and serves stock levels
-echo "Starting inventory (http://localhost:4000)..."
-(cd "$ROOT/services/inventory" && npm run dev) &
-INVENTORY_PID=$!
+# Open a new cmd window for each service (reliable on Windows + Git Bash).
+open_window() {
+  local title="$1"
+  local dir="$2"
+  local cmd="$3"
+  local win_dir
+  win_dir="$(cygpath -w "$dir")"
 
-# Product Landing Page — queries catalog + inventory on load
-# PORT=8080 avoids clashing with catalog on 3000
-echo "Starting PLP (http://localhost:8080)..."
-(cd "$ROOT/services/product-landing-page" && PORT=8080 npm start) &
-PLP_PID=$!
+  powershell.exe -NoProfile -Command \
+    "Start-Process -FilePath 'cmd.exe' -WorkingDirectory '$win_dir' -ArgumentList '/k','title $title && $cmd'"
+}
+
+echo "Opening catalog in a new window (http://localhost:3000)..."
+open_window "Catalog" "$ROOT/services/catalog" "npm run dev"
+
+echo "Opening inventory in a new window (http://localhost:4000)..."
+open_window "Inventory" "$ROOT/services/inventory" "npm run dev"
+
+echo "Opening PLP in a new window (http://localhost:8080)..."
+# Use npx react-scripts directly — npm start hardcodes PORT=3000 with Unix syntax
+open_window "PLP" "$ROOT/services/product-landing-page" "set PORT=8080&& npx react-scripts start"
 
 echo ""
-echo "All services starting. Open http://localhost:8080"
-echo "Press Ctrl+C to stop."
-
-# Keep the script alive until all background processes finish
-wait
+echo "All services launched in separate windows."
+echo "Open http://localhost:8080 in your browser."
+echo "Close each terminal window to stop that service."
