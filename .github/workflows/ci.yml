@@ -81,6 +81,7 @@ jobs:
           cache-dependency-path: |
             tests/integration/package-lock.json
             tests/e2e/package-lock.json
+            tests/postman/package-lock.json
 
       - name: Get Playwright node-version
         id: playwright-version 
@@ -101,6 +102,12 @@ jobs:
         run: |
           npm ci
           npm run test:integration
+
+      - name: Run Postman/Newman tests
+        working-directory: tests/postman
+        run: |
+          npm ci
+          npm run test:postman
 
       - name: Install Playwright + run E2E
         working-directory: tests/e2e
