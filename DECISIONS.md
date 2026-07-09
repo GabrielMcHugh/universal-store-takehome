@@ -17,7 +17,6 @@ Anyhow, this is just a short summary of the decisions I made along the way. I wo
 # Design Decisions & Reasoning
 
 This document explains the key architectural and implementation decisions made during the Universal Store take-home assessment. It is intended to help reviewers understand **what was built**, **why it was built that way**, and **how it maps to the assessment criteria**.
---
 
 ## Architecture overview
 
