@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import { Inventory } from "./model/inventory";
+import { validateSku } from "./service/validation/sku";
 
 type AppConfig = {
   clientUrl?: string;
@@ -24,7 +25,14 @@ export function createApp(config: AppConfig = {}) {
   });
 
   app.get("/inventory/:sku", async (req: Request, res: Response) => {
-    res.json(await Inventory.find({ sku: req.params.sku }));
+    const sku = validateSku(req.params.sku);
+
+    if (!sku) {
+      res.status(400).json({ error: "Invalid SKU format" });
+      return;
+    }
+
+    res.json(await Inventory.find({ sku }));
   });
 
   return app;
