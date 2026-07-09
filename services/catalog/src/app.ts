@@ -1,9 +1,15 @@
 import express, { Request, Response } from "express";
 import { Catalog } from "./model/catalog";
 import { validateSku } from "./service/validation/sku";
+import { createRateLimiter } from "./middleware/rateLimiter";
 
 type AppConfig = {
     clientUrl?: string;
+    rateLimit?: {
+        enabled?: boolean;
+        windowMs?: number;
+        max?: number;
+    };
 }
 
 
@@ -11,6 +17,7 @@ export function createApp(config: AppConfig = {}) {
     const app = express();
 
     app.use(express.json())
+    app.use(createRateLimiter(config.rateLimit));  
 
     //Add headers
     app.use(function (_: any, res: any, next: Function) {
