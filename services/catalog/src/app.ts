@@ -38,6 +38,9 @@ export function createApp(config: AppConfig) {
         next();
     });
 
+    // Uptime monitoring stub — e.g. Pingdom polling GET /heartbeat
+    //app.get("/heartbeat", (_req, res) => res.sendStatus(200));
+
     app.use(createRateLimiter(config.rateLimit));
 
     app.get("/catalog", asyncHandler(async (_: Request, res: Response) => {
