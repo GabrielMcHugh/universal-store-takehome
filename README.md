@@ -61,8 +61,7 @@ This is a thin system for displaying catalog and inventory data. Catalog owns pr
 
 # Key Decisions
 ### Splitting plp-bff into a Backend for Frontend
-This was the obvious decision to make to achieve loose coupling. Joining catalog and inventory in the browser wouldn't make sense as it pushes domain logic into the ui. Clients should be thin and data transformation should take place on the backend. Instead it makes much more sense for it to fetch from a single api and display that data.
-If it was left the way it was, it would tightly couple the frontend with the catalog and inventory which would also mean that the two apis can evolve independently.
+This was the obvious decision to make to achieve loose coupling. Joining catalog and inventory in the browser wouldn't make sense as it pushes domain logic into the ui. Clients should be thin and data transformation should take place on the backend. Instead it makes much more sense for it to fetch from a single api and display that data. If it was left the way it was, it would tightly couple the frontend with the catalog and inventory which would also mean that the two apis can evolve independently.
 
 **To be explicit:**
 - The PLP only needs **products in stock** — one endpoint, one response shape.
@@ -108,6 +107,21 @@ Not really much to write about here. For endpoint documentation swagger and open
 Some nice to have features. I kept them simple because I was short on time but did throw them in there just for demo purposes. If I had more time and this was a production system I would set up logging middleware for sumologic/datadog.
 
 And for the error handling I would be much more comprehensive (structured logs, etc)
+
+## If I had more time
+- Login/user specific data (orders, lists)
+  - JWT for client to BFF
+  - API Key for the bff to talk to the services/api gateway
+  - New services/db for users/orders
+  - Full CRUD for those. Maybe even CRUD for new catalog items.
+  - CQRS (Separate write/read services + events)
+- Ability to add new products
+- Frontend
+  - Add storybook/design library to front end
+  - Flesh out landing page
+  - Multiple pages/routes for  things like product types (would need a separate entity for product types)
+  - Component library would be decomposed into things like /layouts, /ui etc.
+  - Feature folder for feature driven development
 
 ---
 ## Other thoughts on production and scaling
