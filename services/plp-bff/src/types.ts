@@ -1,3 +1,9 @@
+export type AppConfig = {
+  clientUrl: string;
+  catalogUrl: string;
+  inventoryUrl: string;
+};
+
 export type CatalogItem = {
   sku: string;
   title: string;

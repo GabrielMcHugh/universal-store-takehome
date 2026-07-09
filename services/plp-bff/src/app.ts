@@ -1,29 +1,22 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { getInStockProducts } from './getInStockProducts';
-import { CatalogItem, InventoryItem } from './types';
+import { AppConfig } from './types';
+import { fetchProductSources } from './upstream';
 
-type AppConfig = {
-  clientUrl: string;
-  catalogUrl: string;
-  inventoryUrl: string;
-};
-
-async function fetchJson<T>(url: string): Promise<T> {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Request failed: ${response.status} ${url}`);
+function requireConfig(config: AppConfig) {
+  for (const key of ['clientUrl', 'catalogUrl', 'inventoryUrl'] as const) {
+    if (!config[key]) {
+      throw new Error(`${key} is required`);
+    }
   }
-  return response.json() as Promise<T>;
 }
 
 export function createApp(config: AppConfig) {
-  if (!config.clientUrl) {
-    throw new Error('clientUrl is required');
-  }
+  requireConfig(config);
 
   const app = express();
 
-  app.use(function (req: Request, res: Response, next: NextFunction) {
+  app.use((req: Request, res: Response, next: NextFunction) => {
     res.header('Access-Control-Allow-Origin', config.clientUrl);
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -38,16 +31,16 @@ export function createApp(config: AppConfig) {
 
   app.get('/products/in-stock', async (_req: Request, res: Response) => {
     try {
-      const [catalog, inventory] = await Promise.all([
-        fetchJson<CatalogItem[]>(`${config.catalogUrl}/catalog`),
-        fetchJson<InventoryItem[]>(`${config.inventoryUrl}/inventory`),
-      ]);
-
+      const { catalog, inventory } = await fetchProductSources(config);
       res.json(getInStockProducts(catalog, inventory));
     } catch (err) {
       console.error('Failed to load in-stock products', err);
       res.status(502).json({ error: 'Failed to load products' });
     }
+  });
+
+  app.use((_req: Request, res: Response) => {
+    res.status(404).json({ error: 'Not found' });
   });
 
   return app;

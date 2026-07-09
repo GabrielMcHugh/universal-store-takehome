@@ -4,7 +4,7 @@
   "scripts": {
     "postinstall": "playwright install chromium",
     "test": "playwright test",
-    "test:e2e": "wait-on http://localhost:8080 -t 120000 && playwright test",
+    "test:e2e": "wait-on http://localhost:5000/products/in-stock http://localhost:8080 -t 120000 && playwright test",
     "test:headed": "playwright test --headed",
     "report": "playwright show-report"
   },

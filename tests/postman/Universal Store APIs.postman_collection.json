@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "a3784989-bfcf-4062-9421-256331202883",
     "name": "Universal Store APIs",
-    "description": "Contract and integration tests for the **Catalog** and **Inventory** microservices in the Universal Store take-home assessment.\n\n## Purpose\n\nThis collection verifies that both services:\n\n- Return correct HTTP status codes\n    \n- Match expected response shapes\n    \n- Serve seeded test data correctly\n    \n- Honor the cross-service contract: every inventory SKU must exist in the catalog\n    \n\nIt is intended for **interactive debugging in Postman** and **automated runs via Newman** (`tests/postman/`).\n\n## Prerequisites\n\n- **Catalog service** running at `{{catalogUrl}}` (default: `http://localhost:3000`)\n    \n- **Inventory service** running at `{{inventoryUrl}}` (default: `http://localhost:4000`)\n    \n- Databases seeded (via `docker compose up` or manual seed scripts)\n    \n\nSelect the **Local** environment before running requests.\n\n## Collection structure\n\n### Catalog\n\n| Request | Validates |\n| --- | --- |\n| `GET /catalog` | 200, array of ≥4 items with `sku`, `title`, `price`, `image`; stores SKUs in `catalogSkus` |\n| `GET /catalog/:sku` (exists) | 200, returns Pen (`111111`) |\n| `GET /catalog/:sku` (404) | 404 for unknown SKU |\n\n### Inventory\n\n| Request | Validates |\n| --- | --- |\n| `GET /inventory` | 200, array of ≥4 items with `sku` and `quantity`; SKU `444444` has quantity `0` |\n| `GET /inventory/:sku` (exists) | 200, returns item; SKU `111111` has quantity `3` |\n| `GET /inventory/:sku` (404) | 404 for unknown SKU |\n\n### Contract\n\n| Request | Validates |\n| --- | --- |\n| Every inventory SKU exists in catalog | Each inventory SKU is present in `catalogSkus` (set by `GET /catalog`) |\n\n## Run order\n\nRun **Catalog → Inventory → Contract** when using Collection Runner. The Contract test depends on `catalogSkus`, which is set by the first Catalog request.\n\n## Running via Newman\n\n\\`\\`\\`bash  \ncd tests/postman  \nnpm run test:postman",
+    "description": "Contract and integration tests for the **Catalog**, **Inventory**, and **PLP BFF** services in the Universal Store take-home assessment.\n\n## Purpose\n\nThis collection verifies that all services:\n\n- Return correct HTTP status codes\n    \n- Match expected response shapes\n    \n- Serve seeded test data correctly\n    \n- Honor the cross-service contract: every inventory SKU must exist in the catalog\n    \n- The BFF merges catalog + inventory and returns only in-stock products\n    \n\nIt is intended for **interactive debugging in Postman** and **automated runs via Newman** (`tests/postman/`).\n\n## Prerequisites\n\n- **Catalog service** running at `{{catalogUrl}}` (default: `http://localhost:3000`)\n    \n- **Inventory service** running at `{{inventoryUrl}}` (default: `http://localhost:4000`)\n    \n- **PLP BFF** running at `{{bffUrl}}` (default: `http://localhost:5000`)\n    \n- Databases seeded (via `docker compose up` or manual seed scripts)\n    \n\nSelect the **Local** environment before running requests.\n\n## Collection structure\n\n### Catalog\n\n| Request | Validates |\n| --- | --- |\n| `GET /catalog` | 200, array of ≥4 items with `sku`, `title`, `price`, `image`; stores SKUs in `catalogSkus` |\n| `GET /catalog/:sku` (exists) | 200, returns Pen (`111111`) |\n| `GET /catalog/:sku` (404) | 404 for unknown SKU |\n\n### Inventory\n\n| Request | Validates |\n| --- | --- |\n| `GET /inventory` | 200, array of ≥4 items with `sku` and `quantity`; SKU `444444` has quantity `0` |\n| `GET /inventory/:sku` (exists) | 200, returns item; SKU `111111` has quantity `3` |\n| `GET /inventory/:sku` (404) | 404 for unknown SKU |\n\n### PLP BFF\n\n| Request | Validates |\n| --- | --- |\n| `GET /products/in-stock` | 200, merged in-stock products with `sku`, `title`, `price`, `image`, `quantity`; excludes SKU `444444` |\n\n### Contract\n\n| Request | Validates |\n| --- | --- |\n| Every inventory SKU exists in catalog | Each inventory SKU is present in `catalogSkus` (set by `GET /catalog`) |\n\n## Run order\n\nRun **Catalog → Inventory → PLP BFF → Contract** when using Collection Runner. The Contract test depends on `catalogSkus`, which is set by the first Catalog request.\n\n## Running via Newman\n\n\\`\\`\\`bash  \ncd tests/postman  \nnpm run test:postman",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "11203808",
     "_collection_link": "https://go.postman.co/collection/11203808-a3784989-bfcf-4062-9421-256331202883?source=collection_link"
@@ -226,6 +226,66 @@
       "description": "Tests for the **Inventory** microservice (`{{inventoryUrl}}`, port 4000).\n\nReturns stock levels keyed by `sku` and `quantity`.\n\n| Request | Validates |\n| --- | --- |\n| `GET /inventory` | 200, array of ≥4 items; SKU `444444` has quantity `0` |\n| `GET /inventory/:sku` (exists) | 200, returns item; SKU `111111` has quantity `3` |\n| `GET /inventory/:sku` (404) | 404 for unknown SKU |"
     },
     {
+      "name": "PLP BFF",
+      "item": [
+        {
+          "name": "GET /products/in-stock",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('returns an array', () => pm.expect(body).to.be.an('array'));",
+                  "pm.test('returns 3 in-stock products', () => pm.expect(body.length).to.eql(3));",
+                  "pm.test('items have required fields', () => {",
+                  "  body.forEach(item => {",
+                  "    pm.expect(item).to.have.property('sku');",
+                  "    pm.expect(item).to.have.property('title');",
+                  "    pm.expect(item).to.have.property('price');",
+                  "    pm.expect(item).to.have.property('image');",
+                  "    pm.expect(item).to.have.property('quantity');",
+                  "  });",
+                  "});",
+                  "const skus = body.map(i => i.sku);",
+                  "pm.test('includes in-stock SKUs', () => {",
+                  "  pm.expect(skus).to.include('111111');",
+                  "  pm.expect(skus).to.include('222222');",
+                  "  pm.expect(skus).to.include('333333');",
+                  "});",
+                  "pm.test('excludes out-of-stock SKU 444444', () => pm.expect(skus).to.not.include('444444'));",
+                  "const pen = body.find(i => i.sku === '111111');",
+                  "pm.test('Pen has merged catalog + inventory data', () => {",
+                  "  pm.expect(pen.title).to.eql('Pen');",
+                  "  pm.expect(pen.quantity).to.eql(3);",
+                  "  pm.expect(pen.price).to.eql(3);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{bffUrl}}/products/in-stock",
+              "host": [
+                "{{bffUrl}}"
+              ],
+              "path": [
+                "products",
+                "in-stock"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Tests for the **PLP BFF** (`{{bffUrl}}`, port 5000).\n\nMerges catalog and inventory data and returns only products with quantity > 0.\n\n| Request | Validates |\n| --- | --- |\n| `GET /products/in-stock` | 200, 3 merged items; excludes SKU `444444` (Marker) |"
+    },
+    {
       "name": "Contract",
       "item": [
         {
@@ -263,7 +323,7 @@
           "response": []
         }
       ],
-      "description": "Cross-service contract tests between Catalog and Inventory.\n\nThe **Product Landing Page (PLP)** aggregates data from both services to show in-stock products. These tests verify the underlying data contract PLP depends on: every inventory SKU must exist in the catalog.\n\n| Request | Validates |\n| --- | --- |\n| Every inventory SKU exists in catalog | Each inventory SKU is in `catalogSkus` (set by Catalog `GET /catalog`) |\n\n**Must run after the Catalog folder** so `catalogSkus` is populated."
+      "description": "Cross-service contract tests between Catalog and Inventory.\n\nThe **PLP BFF** aggregates data from both services to show in-stock products. These tests verify the underlying data contract the BFF depends on: every inventory SKU must exist in the catalog.\n\n| Request | Validates |\n| --- | --- |\n| Every inventory SKU exists in catalog | Each inventory SKU is in `catalogSkus` (set by Catalog `GET /catalog`) |\n\n**Must run after the Catalog folder** so `catalogSkus` is populated."
     }
   ],
   "variable": [

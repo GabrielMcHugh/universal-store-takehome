@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "test": "jest",
-    "test:integration": "wait-on http://localhost:3000/catalog http://localhost:4000/inventory && jest"
+    "test:integration": "wait-on http://localhost:3000/catalog http://localhost:4000/inventory http://localhost:5000/products/in-stock && jest"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

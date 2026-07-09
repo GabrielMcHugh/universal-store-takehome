@@ -60,4 +60,11 @@ describe('PLP BFF', () => {
     expect(response.status).toBe(502);
     expect(response.body).toEqual({ error: 'Failed to load products' });
   });
+
+  test('unknown routes return 404', async () => {
+    const response = await request(app).get('/unknown');
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: 'Not found' });
+  });
 });

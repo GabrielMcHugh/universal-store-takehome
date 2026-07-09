@@ -1,11 +1,12 @@
 ## Cross-service integration tests
 
-Should be run as part of CI
+Should be run as part of CI.
 
-
-
-Requires catalog and inventory running:
+Requires the full stack (catalog, inventory, and plp-bff):
 
 ```bash
-docker-compose up catalog inventory
+docker-compose up
 cd tests/integration && npm install && npm run test:integration
+```
+
+Tests `GET /products/in-stock` on the PLP BFF, which merges catalog and inventory data.

@@ -16,7 +16,7 @@ test.describe('Product Landing Page', () => {
         await expect(page.getByRole('heading', { name: 'Key' })).toBeVisible();
     })
 
-    test('does not show out-of-stock products', async ({ page }) => {
+    test('renders product card details', async ({ page }) => {
         await page.goto('/');
 
         const penCard = page.locator('article.product-card').filter({
@@ -28,5 +28,11 @@ test.describe('Product Landing Page', () => {
         await expect(penCard.getByText('$3.00')).toBeVisible();
         await expect(penCard.getByRole('img', { name: 'Pen' })).toBeVisible();
     })
-})
 
+    test('does not show out-of-stock products', async ({ page }) => {
+        await page.goto('/');
+
+        await expect(page.getByRole('heading', { name: 'Marker' })).not.toBeVisible();
+        await expect(page.getByText('SKU: 444444')).not.toBeVisible();
+    })
+})
