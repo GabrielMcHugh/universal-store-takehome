@@ -4,6 +4,7 @@ import { validateSku } from "./service/validation/sku";
 import { asyncHandler } from "./middleware/asyncHandler";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { createRateLimiter } from "./middleware/rateLimiter";
+import { requestLogger } from "./middleware/requestLogger";
 import helmet from "helmet";
 
 type AppConfig = {
@@ -25,6 +26,7 @@ export function createApp(config: AppConfig) {
 
     app.use(helmet());
     app.use(express.json());
+    app.use(requestLogger);
 
     app.use(function (req: Request, res: Response, next: NextFunction) {
         res.header("Access-Control-Allow-Origin", config.clientUrl);
