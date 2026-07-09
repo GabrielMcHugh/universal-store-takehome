@@ -39,7 +39,7 @@ export function createApp(config: AppConfig) {
     });
 
     app.get("/catalog", async (_: Request, res: Response) => {
-        res.json(await Catalog.find().select('sky title price image').lean());
+        res.json(await Catalog.find().select('sku title price image').lean());
     });
 
     app.get("/catalog/:sku", async (req: Request, res: Response) => {
