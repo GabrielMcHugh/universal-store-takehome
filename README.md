@@ -1,6 +1,6 @@
 # Hi!
 
-I kept a log alongside me as I developed this codebase. Below is an summary of the decisions I made along the way. You can see the progression of the app through my git commits.
+I kept a log alongside me as I developed this codebase. Below is a summary of the decisions I made along the way. You can see the progression of the app through my git commits.
 
 Instead of overengineering from the get go, I thought I would solve the assessment tasks one by one and then look to improve it afterwards. However that didn't take me that long and so I thought I would flesh it out with some other features I add to my other services.
 
