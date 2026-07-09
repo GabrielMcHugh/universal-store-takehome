@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "a3784989-bfcf-4062-9421-256331202883",
     "name": "Universal Store APIs",
-    "description": "Contract and integration tests for the **Catalog** and **Inventory** microservices in the Universal Store take-home assessment.\n\n## Purpose\n\nThis collection verifies that both services:\n\n- Return correct HTTP status codes\n    \n- Match expected response shapes\n    \n- Serve seeded test data correctly\n    \n- Honor the cross-service contract: every inventory SKU must exist in the catalog\n    \n\nIt is intended for **interactive debugging in Postman** and **automated runs via Newman** (`tests/postman/`).\n\n## Prerequisites\n\n- **Catalog service** running at `{{catalogUrl}}` (default: `http://localhost:3000`)\n    \n- **Inventory service** running at `{{inventoryUrl}}` (default: `http://localhost:4000`)\n    \n- Databases seeded (via `docker compose up` or manual seed scripts)\n    \n\nSelect the **Local** environment before running requests.\n\n## Collection structure\n\n### Catalog\n\n| Request | Validates |\n| --- | --- |\n| `GET /catalog` | 200, array of ≥4 items with `sku`, `title`, `price`, `image`; stores SKUs in `catalogSkus` |\n| `GET /catalog/:sku` (exists) | 200, returns Pen (`111111`) |\n| `GET /catalog/:sku` (404) | 404 for unknown SKU |\n\n### Inventory\n\n| Request | Validates |\n| --- | --- |\n| `GET /inventory` | 200, array of ≥4 items with `sku` and `quantity`; SKU `444444` has quantity `0` |\n| `GET /inventory/:sku` | 200, returns array; SKU `111111` has quantity `3` |\n\n### Contract\n\n| Request | Validates |\n| --- | --- |\n| Every inventory SKU exists in catalog | Each inventory SKU is present in `catalogSkus` (set by `GET /catalog`) |\n\n## Run order\n\nRun **Catalog → Inventory → Contract** when using Collection Runner. The Contract test depends on `catalogSkus`, which is set by the first Catalog request.\n\n## Running via Newman\n\n\\`\\`\\`bash  \ncd tests/postman  \nnpm run test:postman",
+    "description": "Contract and integration tests for the **Catalog** and **Inventory** microservices in the Universal Store take-home assessment.\n\n## Purpose\n\nThis collection verifies that both services:\n\n- Return correct HTTP status codes\n    \n- Match expected response shapes\n    \n- Serve seeded test data correctly\n    \n- Honor the cross-service contract: every inventory SKU must exist in the catalog\n    \n\nIt is intended for **interactive debugging in Postman** and **automated runs via Newman** (`tests/postman/`).\n\n## Prerequisites\n\n- **Catalog service** running at `{{catalogUrl}}` (default: `http://localhost:3000`)\n    \n- **Inventory service** running at `{{inventoryUrl}}` (default: `http://localhost:4000`)\n    \n- Databases seeded (via `docker compose up` or manual seed scripts)\n    \n\nSelect the **Local** environment before running requests.\n\n## Collection structure\n\n### Catalog\n\n| Request | Validates |\n| --- | --- |\n| `GET /catalog` | 200, array of ≥4 items with `sku`, `title`, `price`, `image`; stores SKUs in `catalogSkus` |\n| `GET /catalog/:sku` (exists) | 200, returns Pen (`111111`) |\n| `GET /catalog/:sku` (404) | 404 for unknown SKU |\n\n### Inventory\n\n| Request | Validates |\n| --- | --- |\n| `GET /inventory` | 200, array of ≥4 items with `sku` and `quantity`; SKU `444444` has quantity `0` |\n| `GET /inventory/:sku` (exists) | 200, returns item; SKU `111111` has quantity `3` |\n| `GET /inventory/:sku` (404) | 404 for unknown SKU |\n\n### Contract\n\n| Request | Validates |\n| --- | --- |\n| Every inventory SKU exists in catalog | Each inventory SKU is present in `catalogSkus` (set by `GET /catalog`) |\n\n## Run order\n\nRun **Catalog → Inventory → Contract** when using Collection Runner. The Contract test depends on `catalogSkus`, which is set by the first Catalog request.\n\n## Running via Newman\n\n\\`\\`\\`bash  \ncd tests/postman  \nnpm run test:postman",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "11203808",
     "_collection_link": "https://go.postman.co/collection/11203808-a3784989-bfcf-4062-9421-256331202883?source=collection_link"
@@ -160,17 +160,17 @@
           "response": []
         },
         {
-          "name": "GET /inventory/:sku",
+          "name": "GET /inventory/:sku (exists)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
                   "pm.test('status is 200', () => pm.response.to.have.status(200));",
-                  "const body = pm.response.json();",
-                  "pm.test('returns array with quantity 3', () => {",
-                  "  pm.expect(body).to.be.an('array');",
-                  "  pm.expect(body[0].quantity).to.eql(3);",
+                  "const item = pm.response.json();",
+                  "pm.test('returns item with quantity 3', () => {",
+                  "  pm.expect(item.sku).to.eql('111111');",
+                  "  pm.expect(item.quantity).to.eql(3);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -192,9 +192,38 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "GET /inventory/:sku (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status is 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{inventoryUrl}}/inventory/does-not-exist",
+              "host": [
+                "{{inventoryUrl}}"
+              ],
+              "path": [
+                "inventory",
+                "does-not-exist"
+              ]
+            }
+          },
+          "response": []
         }
       ],
-      "description": "Tests for the **Inventory** microservice (`{{inventoryUrl}}`, port 4000).\n\nReturns stock levels keyed by `sku` and `quantity`.\n\n| Request | Validates |\n| --- | --- |\n| `GET /inventory` | 200, array of ≥4 items; SKU `444444` has quantity `0` |\n| `GET /inventory/:sku` | 200, returns array; SKU `111111` has quantity `3` |"
+      "description": "Tests for the **Inventory** microservice (`{{inventoryUrl}}`, port 4000).\n\nReturns stock levels keyed by `sku` and `quantity`.\n\n| Request | Validates |\n| --- | --- |\n| `GET /inventory` | 200, array of ≥4 items; SKU `444444` has quantity `0` |\n| `GET /inventory/:sku` (exists) | 200, returns item; SKU `111111` has quantity `3` |\n| `GET /inventory/:sku` (404) | 404 for unknown SKU |"
     },
     {
       "name": "Contract",

@@ -77,31 +77,30 @@ describe('Inventory API', () => {
   });
 
   describe('GET /inventory/:sku', () => {
-    it('returns inventory items for a specific sku', async () => {
+    it('returns the inventory item for a specific sku', async () => {
       await Inventory.create(multiItemTest);
       const expectedItem = multiItemTest[1];
 
       const res = await request(app).get(`/inventory/${expectedItem.sku}`);
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveLength(1);
-      expect(res.body[0]).toMatchObject(expectedItem);
+      expect(res.body).toMatchObject(expectedItem);
     });
 
-    it('returns an empty array if the sku does not exist', async () => {
+    it('returns 404 if the sku does not exist', async () => {
       await Inventory.create(singleItemTest);
 
       const res = await request(app).get('/inventory/nonexistentsku');
 
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual([]);
+      expect(res.status).toBe(404);
+      expect(res.body).toEqual({ error: 'Inventory item not found' });
     });
 
-    it('returns an empty array when the inventory is empty', async () => {
+    it('returns 404 when the inventory is empty', async () => {
       const res = await request(app).get('/inventory/111111');
 
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual([]);
+      expect(res.status).toBe(404);
+      expect(res.body).toEqual({ error: 'Inventory item not found' });
     });
 
     it('returns 400 for invalid sku format', async () => {

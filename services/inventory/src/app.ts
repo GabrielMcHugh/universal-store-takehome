@@ -32,7 +32,14 @@ export function createApp(config: AppConfig = {}) {
       return;
     }
 
-    res.json(await Inventory.find({ sku }));
+    const item = await Inventory.findOne({ sku });
+
+    if (!item) {
+      res.status(404).json({ error: "Inventory item not found" });
+      return;
+    }
+
+    res.json(item);
   });
 
   return app;
