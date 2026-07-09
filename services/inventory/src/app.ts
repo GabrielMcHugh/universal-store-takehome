@@ -1,6 +1,8 @@
 import express, { NextFunction, Request, Response } from "express";
 import { Inventory } from "./model/inventory";
 import { validateSku } from "./service/validation/sku";
+import { asyncHandler } from "./middleware/asyncHandler";
+import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { createRateLimiter } from "./middleware/rateLimiter";
 import helmet from "helmet";
 
@@ -22,7 +24,6 @@ export function createApp(config: AppConfig) {
 
   app.use(helmet());
   app.use(express.json());
-  app.use(createRateLimiter(config.rateLimit));
 
   app.use(function (req: Request, res: Response, next: NextFunction) {
     res.header("Access-Control-Allow-Origin", config.clientUrl);
@@ -40,11 +41,13 @@ export function createApp(config: AppConfig) {
     next();
   });
 
-  app.get("/inventory", async (_: Request, res: Response) => {
-    res.json(await Inventory.find().select('sku quantity').lean());
-  });
+  app.use(createRateLimiter(config.rateLimit));
 
-  app.get("/inventory/:sku", async (req: Request, res: Response) => {
+  app.get("/inventory", asyncHandler(async (_: Request, res: Response) => {
+    res.json(await Inventory.find().select('sku quantity').lean());
+  }));
+
+  app.get("/inventory/:sku", asyncHandler(async (req: Request, res: Response) => {
     const sku = validateSku(req.params.sku);
 
     if (!sku) {
@@ -60,7 +63,10 @@ export function createApp(config: AppConfig) {
     }
 
     res.json(item);
-  });
+  }));
+
+  app.use(notFoundHandler);
+  app.use(errorHandler);
 
   return app;
 }
