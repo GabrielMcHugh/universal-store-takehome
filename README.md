@@ -28,11 +28,11 @@ The frontend service is a simple React application that consumes the Catalog and
 The Product Landing Page service needs to be updated to display a list of products that are in stock. This will require querying both the catalog and inventory services then aggregating the data to determine the eligibility.
 
 ## Tasks to complete
-- [ ] Create a model for Catalog items.
-- [ ] Implement seed.ts so that it populates the database.
-- [ ] Implement the catalog service api so that it returns a list of all catalog items using the model you've created.
-- [ ] Update the PLP service to query your new catalog service on load.
-- [ ] Render the image, title, sku, remaining quantity and price of each item in the catalog if it has more than 0 stock.
+- [x] Create a model for Catalog items.
+- [x] Implement seed.ts so that it populates the database.
+- [x] Implement the catalog service api so that it returns a list of all catalog items using the model you've created.
+- [x] Update the PLP service to query your new catalog service on load.
+- [x] Render the image, title, sku, remaining quantity and price of each item in the catalog if it has more than 0 stock.
 
 ## Assessment Criteria
 - [ ] Clean, well-structured TypeScript code following best practices and conventions.
@@ -40,3 +40,25 @@ The Product Landing Page service needs to be updated to display a list of produc
 - [ ] An elegant solution that minimizes tight coupling.
 - [ ] Clear and comprehensive documentation of code and decisions made.
 - [ ] Type annotations and strict typing.
+
+## Afterwards
+- [ ] More comprehensive testing (DB down, invalid input, cors, e2e on docker compose)
+- [ ] OpenAPI docs for endpoints
+- [ ] Cyber security: rate limiting, query sanitisation, validation, authentication and authorisation
+    - Essential Eight/OWASPth
+    - Essential 8 #4 user application hardening: input validation and query sanitisation
+- [ ] InStock service dedicated API
+- [ ] Integration tests as part of CI/Github Actions
+
+## What I would do if I had more time
+- BFF/Proxy backend: 1 request and backend can handle merge, hide internal services, no cors, loose coupling
+
+## Production consideration
+RateLimiting
+- Rate limiting keys on client IP via req.ip. In production, a reverse proxy sits in front of the API, so Express must be configured with trust proxy to read the real client IP from X-Forwarded-For; otherwise all traffic appears to come from one address and per-client limits fail.
+- Rate limits need a shared store (Redis) because the requests would be split across multiple containers behind a load balancer
+This would ensure that the limit is enforced globally regardless of who runs the request
+- Scope per api vs per api key: scoping by ip adress is good for anonymous public capis, but might not be good for authicated partnerts (such as a backend or a some other legitimate partner) and some other conditions (mobile carrier nat, corporate office with one ip)
+In this case you would need an API key and you can rate limit by that identity
+-If we separate the plp into BFF then we would have a separate route for traffic from it
+- The primary rate limiter should be on the api gateway.
