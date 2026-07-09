@@ -15,8 +15,12 @@ Lastly, for this project I decided not to focus on the front end. I'm quite comf
 
 ## Run the stack
 
-For local development without Docker, run `./dev-local.sh`.
+For local development without Docker, run 
+```bash
+./dev-local.sh
+```
 
+With Docker
 ```bash
 docker compose up --build
 ```
