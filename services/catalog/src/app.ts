@@ -31,7 +31,7 @@ export function createApp(config: AppConfig = {}) {
             return;
         }
 
-        const item = await Catalog.findOne({ sku: req.params.sku });
+        const item = await Catalog.findOne({ sku });
 
 
 
