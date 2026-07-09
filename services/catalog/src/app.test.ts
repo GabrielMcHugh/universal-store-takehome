@@ -5,6 +5,8 @@ import { createApp } from './app';
 import { Catalog } from './model/catalog';
 import { CatalogItem } from './types/catalogItem';
 
+//Backend Integration test on Mongo + express
+
 //Data factory
 export const catalogItemFixture = (
     overrides: Partial<CatalogItem> = {}
@@ -96,6 +98,16 @@ describe("Catalog API", () => {
         it("returns 404 when the catalog is empty", async () => {
             const res = await request(app).get("/catalog/SKU-001");
             expect(res.status).toBe(404);
+        });
+
+        it("returns 400 for invalid sku format", async () => {
+            const res = await request(app).get("/catalog/not%20valid");
+            expect(res.status).toBe(400);
+            expect(res.body).toEqual({ error: "Invalid SKU format" });
+        });
+        it("returns 400 for sku with injection-like characters", async () => {
+            const res = await request(app).get('/catalog/{"$gt":""}');
+            expect(res.status).toBe(400);
         });
     });
 });
