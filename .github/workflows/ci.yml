@@ -5,6 +5,33 @@ on:
   pull_request:
 
 jobs:
+  dependency-audit:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        path:
+          - services/catalog
+          - services/inventory
+          - services/product-landing-page
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: ${{ matrix.path }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.path }}
+        run: npm ci
+
+      - name: npm audit (high and above)
+        working-directory: ${{ matrix.path }}
+        run: npm audit --audit-level=high
+
   unit-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -13,6 +40,9 @@ jobs:
         include:
           - name: catalog
             path: services/catalog
+            test: npm test
+          - name: inventory
+            path: services/inventory
             test: npm test
           - name: product-landing-page
             path: services/product-landing-page
@@ -39,7 +69,7 @@ jobs:
 
   integration-and-e2e:
     runs-on: ubuntu-latest
-    needs: unit-tests
+    needs: [dependency-audit, unit-tests]
 
     steps:
       - uses: actions/checkout@v4

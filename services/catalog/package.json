@@ -6,7 +6,8 @@
     "seed": "ts-node ./src/seed.ts",
     "dev": "nodemon --watch src --ext ts --exec ts-node ./src/server.ts",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "audit": "npm audit --audit-level=high"
   },
   "dependencies": {
     "express": "^4.17.1",
