@@ -4,7 +4,7 @@ React app that displays in-stock products. Runs on port **8080** via Docker Comp
 
 On load, it fetches merged product data from the PLP BFF (`GET /products/in-stock`) and renders a card grid with image, title, SKU, price, and remaining quantity.
 
-See the root [DECISIONS.md](../../DECISIONS.md) for architecture and design rationale.
+See the root [README.md](../../README.md) for architecture and design rationale.
 
 ## Configuration
 

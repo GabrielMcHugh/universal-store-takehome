@@ -4,14 +4,12 @@ I kept a log alongside me as I developed this codebase. Below is an summary of t
 
 Instead of overengineering from the get go, I thought I would solve the assessment tasks one by one and then look to improve it afterwards. However that didn't take me that long and so I thought I would flesh it out with other features I add to my other services.
 
-While a lot of our workflow at leap is done through  purely though orchestrating agents now (with varying results), I slowed down my pace here, handwrote a lot of the intialy sections (not that it matters) and just kept it as a reference as I implemented the features I wanted to. 
-Though, towards the end of it I allowed the agent to refactor files more freely as I felt I'd already spent enough time on this project and wanted to finish up.
+While a lot of our workflow at leap is done purely though orchestrating agents now (with varying results), I slowed down my pace here, hand rolled a lot of the initial sections/commits (not that it matters) and just kept it as a reference as I implemented the features I wanted to. 
+Though, towards the end of the project I allowed the agent to refactor files more freely as I felt I'd already spent enough time on this project and wanted to finish up.
 
 Doing it again, I would have refactored the plp earlier into a frontend/backend. I held off at the start because it didn't specify it in the task requirements but decided to towards the end because it was obviously necessary.
 
-Lastly, for this project I decided not to focus on the front end. I'm quite comfortable with front end design but I made the assumption that this project was more focused on backend design.
-
-Anyhow, this is just a short summary of the decisions I made along the way. I would be glad to explain them more in depth in person and what I would do next if I had more time and if we were scaling this project up.
+Lastly, for this project I decided not to focus on the front end. I'm quite comfortable with front end design but I made the assumption that that wasn't the focus of this project.
 
 ## Architecture overview
 
@@ -52,10 +50,10 @@ For local development without Docker, see `dev-local.sh`.
 
 # Key Decisions
 ### Splitting plp-bff into a Backend for Frontend
-This was the obvious decision to make to achieve loose coupling. Joining catalog and inventory in the browser wouldn't make sense as that pushes domain logic into the ui. Clients should be thin and already transformed data.
-And then for the backends it would more tightly couple it with the two services it was consuming. Instead it makes much more sense for it to fetch from a single api and display that data. This also means that the two apis can change without plp knowing about either services.
+This was the obvious decision to make to achieve loose coupling. Joining catalog and inventory in the browser wouldn't make sense as it pushes domain logic into the ui. Clients should be thin and data transformation should take place on the backend.Instead it makes much more sense for it to fetch from a single api and display that data.
+If it was left the way it was, it would tightly couple the frontend with the catalog and inventory which would also mean that the two apis can evolve indepdently.
 
-**Why:**
+**To be explicit:**
 - The PLP only needs **products in stock** — one endpoint, one response shape.
 - The frontend should not know catalog and inventory URLs, CORS rules, or merge logic.
 - Catalog and inventory remain internal services the browser never talks to.
@@ -63,13 +61,13 @@ And then for the backends it would more tightly couple it with the two services 
 - Separate MongoDB instances make a database join impossible anyway; HTTP aggregation is the correct approach.
 
 ### Test-driven development
-As this was mentioned in the criteria, I decided for this project I wanted to provide generous test coverage over the various services. Initially I started out with some simple jest unit/integration tests (integration because it connects with db, but is it really?) as I fleshed out the apis, starting with catalog. It was the same for the PLP, but primarily through the unit test of the join function (my initial implementation of the aggregation of the two apis.) I would like to be forgiven for this, I was in a little bit of a rush the dat I recieved the project.
+Since this was mentioned in the criteria, I wanted to provide generous test coverage across the various services. I started with some simple Jest unit/integration tests as I fleshed out the APIs, starting with catalog. Same story for the PLP, though mainly through a unit test of the join function (my initial take on aggregating the two APIs). I'd like to be forgiven for that; I was in a bit of a rush the day I received the project.
 
-Anyhow. After the initial tasks were done I decided to implement some simple integrations (jest) and e2e (playwright) tests to replicate how we would typically do it in development. The integration tests are necessary to prove their HTTP contracts align. Nothing complicated. I kept a lot of things relatively simple to save time. If I had more time more comprehensive test coverage would probably be one of the things I would work on.
+Anyhow. Once the initial tasks were done, I added some simple Jest integration tests and Playwright e2e tests to mirror how we'd typically approach this in development. The integration tests are there to prove the HTTP contracts align. Nothing complicated. I kept a lot of things relatively simple to save time — if I had more time, more comprehensive coverage would probably be one of the first things I'd expand on.
 
-I also setup a github workflow to run the testing jobs. If I had more time I would separate the unit tests and the some of the heavier e2e tests on separate branches.
+I also set up a GitHub workflow to run the testing jobs. With more time, I'd split the unit tests from some of the heavier e2e tests onto separate jobs/branches.
 
-Lastly, I also added a postman collection. I generated the endpoint test because it would have taken too long to handwrite them out. I also added these tests to the workflow. I know that there would be some overlap between that and the integration tests, but I kept it here just for demonstration purposes.
+Lastly, I added a Postman collection. I generated the endpoint tests because handwriting them all would have taken too long. Those are in the workflow as well. There's some overlap with the integration tests, but I kept them for demonstration purposes.
 
 ### Splitting express construction and process
 A small design decision that was done so that the app could be injectable into tests. app.ts -> app.ts + server.ts
