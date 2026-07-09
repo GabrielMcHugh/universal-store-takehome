@@ -111,6 +111,9 @@ Ideas on how this would evolve beyond the take-home. Really just depends on what
 7. **Redis for rate-limit counters** across multiple container replicas — in-memory limiters only see their own pod. The gateway handles the coarse public cap; Redis is needed at the service level when replicas share a limit. BFF response caching is a separate win (short TTL on `/products/in-stock`).
 8. **S3 + CDN** for product images — faster edge loading on the PLP; catalog stores CDN URLs, uploads go through the write service.
 
+Maybe something like this (quick mockup)
+
+![System design](docs/system-design.png)
 
 ### Production consideration
 RateLimiting
