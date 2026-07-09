@@ -3,11 +3,7 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { createApp } from './app';
 import { Inventory } from './model/inventory';
-
-type InventoryItem = {
-  sku: string;
-  quantity: number;
-};
+import { InventoryItem } from './types/inventoryItem';
 
 const inventoryItemFixture = (
   overrides: Partial<InventoryItem> = {}

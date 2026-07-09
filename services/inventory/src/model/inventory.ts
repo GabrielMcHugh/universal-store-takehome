@@ -1,8 +1,10 @@
-import mongoose from "mongoose";
+import mongoose, { InferSchemaType } from "mongoose";
+import { InventoryItem } from "../types/inventoryItem";
 
-const inventorySchema = new mongoose.Schema({
+const inventorySchema = new mongoose.Schema<InventoryItem>({
     sku: String,
     quantity: Number,
 });
 
-export const Inventory = mongoose.model('Inventory', inventorySchema);
+export type InventoryDocument = InferSchemaType<typeof inventorySchema>
+export const Inventory = mongoose.model<InventoryDocument>('Inventory', inventorySchema);
