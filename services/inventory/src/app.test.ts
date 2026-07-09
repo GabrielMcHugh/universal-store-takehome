@@ -25,9 +25,11 @@ const multiItemTest: InventoryItem[] = [
   inventoryItemFixture({ sku: '333333', quantity: 1 }),
 ];
 
+const testClientUrl = 'http://localhost:8080';
+
 describe('Inventory API', () => {
   let mongo: MongoMemoryServer;
-  const app = createApp({ rateLimit: { enabled: false } });
+  const app = createApp({ clientUrl: testClientUrl, rateLimit: { enabled: false } });
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
@@ -76,7 +78,7 @@ describe('Inventory API', () => {
     });
 
     it('returns 429 when rate limit is exceeded', async () => {
-      const app = createApp({ rateLimit: { max: 2, windowMs: 60_000 } });
+      const app = createApp({ clientUrl: testClientUrl, rateLimit: { max: 2, windowMs: 60_000 } });
       await request(app).get('/inventory');
       await request(app).get('/inventory');
       const res = await request(app).get('/inventory');

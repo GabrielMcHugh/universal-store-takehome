@@ -27,9 +27,11 @@ const multiItemTest: CatalogItem[] = [
 ];
 
 
+const testClientUrl = "http://localhost:8080";
+
 describe("Catalog API", () => {
     let mongo: MongoMemoryServer;
-    const app = createApp({ rateLimit: { enabled: false } });
+    const app = createApp({ clientUrl: testClientUrl, rateLimit: { enabled: false } });
 
     beforeAll(async () => {
         mongo = await MongoMemoryServer.create();
@@ -77,7 +79,7 @@ describe("Catalog API", () => {
         });
 
         it("returns 429 when rate limit is exceeded", async () => {
-            const app = createApp({ rateLimit: { max: 2, windowMs: 60_000 } });
+            const app = createApp({ clientUrl: testClientUrl, rateLimit: { max: 2, windowMs: 60_000 } });
             await request(app).get("/catalog");
             await request(app).get("/catalog");
             const res = await request(app).get("/catalog");

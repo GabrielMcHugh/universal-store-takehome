@@ -4,7 +4,7 @@ import { validateSku } from "./service/validation/sku";
 import { createRateLimiter } from "./middleware/rateLimiter";
 
 type AppConfig = {
-  clientUrl?: string;
+  clientUrl: string;
   rateLimit?: {
     enabled?: boolean;
     windowMs?: number;
@@ -12,14 +12,18 @@ type AppConfig = {
   };
 };
 
-export function createApp(config: AppConfig = {}) {
+export function createApp(config: AppConfig) {
+  if (!config.clientUrl) {
+    throw new Error("clientUrl is required");
+  }
+
   const app = express();
 
   app.use(express.json());
   app.use(createRateLimiter(config.rateLimit));
 
   app.use(function (_: any, res: any, next: Function) {
-    res.header("Access-Control-Allow-Origin", config.clientUrl ?? "*");
+    res.header("Access-Control-Allow-Origin", config.clientUrl);
     res.header(
       "Access-Control-Allow-Headers",
       "Origin, X-Requested-With, Content-Type, Accept"
