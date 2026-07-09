@@ -41,7 +41,7 @@ export function createApp(config: AppConfig) {
   });
 
   app.get("/inventory", async (_: Request, res: Response) => {
-    res.json(await Inventory.find());
+    res.json(await Inventory.find().select('sku quantity').lean());
   });
 
   app.get("/inventory/:sku", async (req: Request, res: Response) => {
@@ -52,7 +52,7 @@ export function createApp(config: AppConfig) {
       return;
     }
 
-    const item = await Inventory.findOne({ sku });
+    const item = await Inventory.findOne({ sku }).select('sku quantity').lean();
 
     if (!item) {
       res.status(404).json({ error: "Inventory item not found" });
