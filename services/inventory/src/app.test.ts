@@ -27,7 +27,7 @@ const multiItemTest: InventoryItem[] = [
 
 describe('Inventory API', () => {
   let mongo: MongoMemoryServer;
-  const app = createApp();
+  const app = createApp({ rateLimit: { enabled: false } });
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
@@ -73,6 +73,15 @@ describe('Inventory API', () => {
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual([]);
+    });
+
+    it('returns 429 when rate limit is exceeded', async () => {
+      const app = createApp({ rateLimit: { max: 2, windowMs: 60_000 } });
+      await request(app).get('/inventory');
+      await request(app).get('/inventory');
+      const res = await request(app).get('/inventory');
+      expect(res.status).toBe(429);
+      expect(res.body).toEqual({ error: 'Too many requests, please try again later' });
     });
   });
 
