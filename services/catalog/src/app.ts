@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { Catalog } from "./model/catalog";
 import { validateSku } from "./service/validation/sku";
 import { createRateLimiter } from "./middleware/rateLimiter";
+import helmet from "helmet";
 
 type AppConfig = {
     clientUrl: string;
@@ -20,13 +21,20 @@ export function createApp(config: AppConfig) {
 
     const app = express();
 
+    app.use(helmet());
     app.use(express.json())
-    app.use(createRateLimiter(config.rateLimit));  
+    app.use(createRateLimiter(config.rateLimit));
 
     //Add headers
-    app.use(function (_: any, res: any, next: Function) {
+    app.use(function (req: any, res: any, next: Function) {
         res.header("Access-Control-Allow-Origin", config.clientUrl);
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
+        
+        if (req.method === "OPTIONS") {
+          res.sendStatus(204);
+          return;
+        }
         next();
     });
 

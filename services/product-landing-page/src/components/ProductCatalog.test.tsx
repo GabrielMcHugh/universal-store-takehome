@@ -5,6 +5,8 @@ import { fetchCatalog } from '../api/catalogClient';
 import { fetchInventory } from '../api/inventoryClient';
 import { catalogItems, inventoryItems } from './test/fixtures';
 
+//Component test (react/jotai/hook)
+
 jest.mock('../api/catalogClient');
 jest.mock('../api/inventoryClient');
 
